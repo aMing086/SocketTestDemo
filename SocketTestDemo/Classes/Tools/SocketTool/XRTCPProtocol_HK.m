@@ -147,15 +147,14 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
     NSString *string = @"123456";
     NSStringEncoding encoding = CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000);
     NSData *data = [string dataUsingEncoding:encoding];
-//    Byte *byteData =
-//    if ([data length] > 36) {
-//        data = [data subdataWithRange:NSMakeRange(0, 36)];
-//    } else {
-//        NSMutableData *mutableData = [NSMutableData dataWithData:data];
-//        for (int i = 0; i < 36 - [data length]; i++) {
-//            mutableData appendBytes:<#(nonnull const void *)#> length:<#(NSUInteger)#>
-//        }
-//    }
+    if ([data length] > 36) {
+        data = [data subdataWithRange:NSMakeRange(0, 36)];
+    } else {
+        NSMutableData *mutableData = [NSMutableData dataWithData:data];
+        for (int i = 0; i < 36 - [data length]; i++) {
+            [mutableData appendData:[@"0" dataUsingEncoding:encoding]];
+        }
+    }
     [buf appendData:data];
     
     return buf;
