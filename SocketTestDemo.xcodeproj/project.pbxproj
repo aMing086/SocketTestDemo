@@ -7,14 +7,31 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C02764DE2046555E00CF7973 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C02764DD2046555E00CF7973 /* AppDelegate.m */; };
-		C02764E12046555F00CF7973 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C02764E02046555F00CF7973 /* ViewController.m */; };
+		BECD8040B6182E3826C9BE28 /* Pods_SocketTestDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 940D10C3D99182639830BF0A /* Pods_SocketTestDemo.framework */; };
 		C02764E42046555F00CF7973 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C02764E22046555F00CF7973 /* Main.storyboard */; };
 		C02764E62046555F00CF7973 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C02764E52046555F00CF7973 /* Assets.xcassets */; };
-		C02764E92046555F00CF7973 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C02764E72046555F00CF7973 /* LaunchScreen.storyboard */; };
 		C02764EC2046555F00CF7973 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C02764EB2046555F00CF7973 /* main.m */; };
 		C02764F62046556000CF7973 /* SocketTestDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C02764F52046556000CF7973 /* SocketTestDemoTests.m */; };
 		C02765012046556000CF7973 /* SocketTestDemoUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = C02765002046556000CF7973 /* SocketTestDemoUITests.m */; };
+		C02765212046559000CF7973 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C02765112046559000CF7973 /* AppDelegate.m */; };
+		C0276527204656AE00CF7973 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C0276525204656AE00CF7973 /* ViewController.m */; };
+		C027652B20469B2500CF7973 /* SocketTool.m in Sources */ = {isa = PBXBuildFile; fileRef = C027652A20469B2500CF7973 /* SocketTool.m */; };
+		C0832D3F2051165000DC3851 /* XRTCPProtocol_HK.m in Sources */ = {isa = PBXBuildFile; fileRef = C0832D3E2051165000DC3851 /* XRTCPProtocol_HK.m */; };
+		C08D7E1320575BE600368548 /* HKVideoStream_log.txt in Resources */ = {isa = PBXBuildFile; fileRef = C08D7E1220575BE600368548 /* HKVideoStream_log.txt */; };
+		C0978DEE205916560092F531 /* HKVideoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C0978DED205916560092F531 /* HKVideoManager.m */; };
+		C09CBB5120564B2200651B84 /* libPlayCtrl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C09CBB4F20564B2200651B84 /* libPlayCtrl.a */; };
+		C09CBB5920565EA600651B84 /* libstdc++.6.0.9.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C09CBB5820565EA600651B84 /* libstdc++.6.0.9.tbd */; };
+		C09CBB5B20565ECF00651B84 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C09CBB5A20565EBD00651B84 /* VideoToolbox.framework */; };
+		C09CBB5D20565EF000651B84 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C09CBB5C20565EE200651B84 /* CoreMedia.framework */; };
+		C09CBB5F20565F1200651B84 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C09CBB5E20565EFF00651B84 /* AVFoundation.framework */; };
+		C09CBB632056606900651B84 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C09CBB622056605800651B84 /* AudioToolbox.framework */; };
+		C09CBB642056608100651B84 /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C09CBB5420565A4B00651B84 /* libiconv.tbd */; };
+		C09CBB6F2056620A00651B84 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C09CBB6E2056620400651B84 /* GLKit.framework */; };
+		C09CBB702056623500651B84 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C09CBB5620565B3200651B84 /* libz.tbd */; };
+		C09CBB712056625900651B84 /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C09CBB5220565A3F00651B84 /* libbz2.tbd */; };
+		C09CBB73205665C000651B84 /* 123456-1-51184.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = C09CBB72205665C000651B84 /* 123456-1-51184.mp4 */; };
+		C09CBB7D205671B700651B84 /* YMSocketUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = C09CBB7B205671B700651B84 /* YMSocketUtils.m */; };
+		C09CBB8720567CDD00651B84 /* header.txt in Resources */ = {isa = PBXBuildFile; fileRef = C09CBB8620567CDC00651B84 /* header.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,14 +52,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0AE09507650A6A613C0871A0 /* Pods-SocketTestDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SocketTestDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-SocketTestDemo/Pods-SocketTestDemo.release.xcconfig"; sourceTree = "<group>"; };
+		940D10C3D99182639830BF0A /* Pods_SocketTestDemo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SocketTestDemo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C02764D92046555E00CF7973 /* SocketTestDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SocketTestDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		C02764DC2046555E00CF7973 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		C02764DD2046555E00CF7973 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		C02764DF2046555F00CF7973 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		C02764E02046555F00CF7973 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		C02764E32046555F00CF7973 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		C02764E52046555F00CF7973 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		C02764E82046555F00CF7973 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C02764EA2046555F00CF7973 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C02764EB2046555F00CF7973 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		C02764F12046556000CF7973 /* SocketTestDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SocketTestDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -51,6 +65,43 @@
 		C02764FC2046556000CF7973 /* SocketTestDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SocketTestDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C02765002046556000CF7973 /* SocketTestDemoUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SocketTestDemoUITests.m; sourceTree = "<group>"; };
 		C02765022046556000CF7973 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C02765102046559000CF7973 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		C02765112046559000CF7973 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		C02765172046559000CF7973 /* AppMacro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppMacro.h; sourceTree = "<group>"; };
+		C02765182046559000CF7973 /* NotificationMacro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationMacro.h; sourceTree = "<group>"; };
+		C02765192046559000CF7973 /* UtilesMacro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UtilesMacro.h; sourceTree = "<group>"; };
+		C027651A2046559000CF7973 /* VendorMacro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VendorMacro.h; sourceTree = "<group>"; };
+		C0276525204656AE00CF7973 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		C0276526204656AE00CF7973 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		C027652920469B2500CF7973 /* SocketTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SocketTool.h; sourceTree = "<group>"; };
+		C027652A20469B2500CF7973 /* SocketTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SocketTool.m; sourceTree = "<group>"; };
+		C0832D3D2051165000DC3851 /* XRTCPProtocol_HK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XRTCPProtocol_HK.h; sourceTree = "<group>"; };
+		C0832D3E2051165000DC3851 /* XRTCPProtocol_HK.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XRTCPProtocol_HK.m; sourceTree = "<group>"; };
+		C08D7E1220575BE600368548 /* HKVideoStream_log.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HKVideoStream_log.txt; sourceTree = "<group>"; };
+		C0978DEC205916560092F531 /* HKVideoManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HKVideoManager.h; sourceTree = "<group>"; };
+		C0978DED205916560092F531 /* HKVideoManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HKVideoManager.m; sourceTree = "<group>"; };
+		C09CBB4E20564B2200651B84 /* IOSPlayM4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOSPlayM4.h; sourceTree = "<group>"; };
+		C09CBB4F20564B2200651B84 /* libPlayCtrl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libPlayCtrl.a; sourceTree = "<group>"; };
+		C09CBB5020564B2200651B84 /* MobilePlaySDKInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MobilePlaySDKInterface.h; sourceTree = "<group>"; };
+		C09CBB5220565A3F00651B84 /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
+		C09CBB5420565A4B00651B84 /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
+		C09CBB5620565B3200651B84 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		C09CBB5820565EA600651B84 /* libstdc++.6.0.9.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libstdc++.6.0.9.tbd"; path = "usr/lib/libstdc++.6.0.9.tbd"; sourceTree = SDKROOT; };
+		C09CBB5A20565EBD00651B84 /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
+		C09CBB5C20565EE200651B84 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		C09CBB5E20565EFF00651B84 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		C09CBB6020565F3000651B84 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		C09CBB622056605800651B84 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		C09CBB652056609A00651B84 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		C09CBB66205660A200651B84 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
+		C09CBB69205660C300651B84 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		C09CBB6B205660D600651B84 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		C09CBB6E2056620400651B84 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		C09CBB72205665C000651B84 /* 123456-1-51184.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "123456-1-51184.mp4"; sourceTree = "<group>"; };
+		C09CBB7B205671B700651B84 /* YMSocketUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YMSocketUtils.m; sourceTree = "<group>"; };
+		C09CBB7C205671B700651B84 /* YMSocketUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YMSocketUtils.h; sourceTree = "<group>"; };
+		C09CBB8620567CDC00651B84 /* header.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = header.txt; sourceTree = "<group>"; };
+		F501EDF5A616AC6BDC218A1A /* Pods-SocketTestDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SocketTestDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SocketTestDemo/Pods-SocketTestDemo.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +109,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C09CBB712056625900651B84 /* libbz2.tbd in Frameworks */,
+				C09CBB702056623500651B84 /* libz.tbd in Frameworks */,
+				C09CBB6F2056620A00651B84 /* GLKit.framework in Frameworks */,
+				C09CBB642056608100651B84 /* libiconv.tbd in Frameworks */,
+				C09CBB632056606900651B84 /* AudioToolbox.framework in Frameworks */,
+				C09CBB5F20565F1200651B84 /* AVFoundation.framework in Frameworks */,
+				C09CBB5D20565EF000651B84 /* CoreMedia.framework in Frameworks */,
+				C09CBB5B20565ECF00651B84 /* VideoToolbox.framework in Frameworks */,
+				C09CBB5120564B2200651B84 /* libPlayCtrl.a in Frameworks */,
+				C09CBB5920565EA600651B84 /* libstdc++.6.0.9.tbd in Frameworks */,
+				BECD8040B6182E3826C9BE28 /* Pods_SocketTestDemo.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +140,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5AF61A8DC91E824E6837E278 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				F501EDF5A616AC6BDC218A1A /* Pods-SocketTestDemo.debug.xcconfig */,
+				0AE09507650A6A613C0871A0 /* Pods-SocketTestDemo.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		C02764D02046555D00CF7973 = {
 			isa = PBXGroup;
 			children = (
@@ -85,6 +156,8 @@
 				C02764F42046556000CF7973 /* SocketTestDemoTests */,
 				C02764FF2046556000CF7973 /* SocketTestDemoUITests */,
 				C02764DA2046555E00CF7973 /* Products */,
+				5AF61A8DC91E824E6837E278 /* Pods */,
+				D0181872A77A8052FE016B46 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -101,13 +174,9 @@
 		C02764DB2046555E00CF7973 /* SocketTestDemo */ = {
 			isa = PBXGroup;
 			children = (
-				C02764DC2046555E00CF7973 /* AppDelegate.h */,
-				C02764DD2046555E00CF7973 /* AppDelegate.m */,
-				C02764DF2046555F00CF7973 /* ViewController.h */,
-				C02764E02046555F00CF7973 /* ViewController.m */,
+				C027650E2046559000CF7973 /* Classes */,
 				C02764E22046555F00CF7973 /* Main.storyboard */,
 				C02764E52046555F00CF7973 /* Assets.xcassets */,
-				C02764E72046555F00CF7973 /* LaunchScreen.storyboard */,
 				C02764EA2046555F00CF7973 /* Info.plist */,
 				C02764EB2046555F00CF7973 /* main.m */,
 			);
@@ -132,6 +201,201 @@
 			path = SocketTestDemoUITests;
 			sourceTree = "<group>";
 		};
+		C027650E2046559000CF7973 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				C027650F2046559000CF7973 /* AppDelegate */,
+				C02765122046559000CF7973 /* Base */,
+				C02765132046559000CF7973 /* Category */,
+				C02765142046559000CF7973 /* General */,
+				C02765152046559000CF7973 /* Helper */,
+				C02765162046559000CF7973 /* Macros */,
+				C027651B2046559000CF7973 /* Others */,
+				C027651C2046559000CF7973 /* Resource */,
+				C027651D2046559000CF7973 /* Scenes */,
+				C027651E2046559000CF7973 /* Sections */,
+				C027651F2046559000CF7973 /* Tools */,
+				C02765202046559000CF7973 /* Vendors */,
+			);
+			path = Classes;
+			sourceTree = "<group>";
+		};
+		C027650F2046559000CF7973 /* AppDelegate */ = {
+			isa = PBXGroup;
+			children = (
+				C02765102046559000CF7973 /* AppDelegate.h */,
+				C02765112046559000CF7973 /* AppDelegate.m */,
+			);
+			path = AppDelegate;
+			sourceTree = "<group>";
+		};
+		C02765122046559000CF7973 /* Base */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Base;
+			sourceTree = "<group>";
+		};
+		C02765132046559000CF7973 /* Category */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Category;
+			sourceTree = "<group>";
+		};
+		C02765142046559000CF7973 /* General */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = General;
+			sourceTree = "<group>";
+		};
+		C02765152046559000CF7973 /* Helper */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Helper;
+			sourceTree = "<group>";
+		};
+		C02765162046559000CF7973 /* Macros */ = {
+			isa = PBXGroup;
+			children = (
+				C02765172046559000CF7973 /* AppMacro.h */,
+				C02765182046559000CF7973 /* NotificationMacro.h */,
+				C02765192046559000CF7973 /* UtilesMacro.h */,
+				C027651A2046559000CF7973 /* VendorMacro.h */,
+			);
+			path = Macros;
+			sourceTree = "<group>";
+		};
+		C027651B2046559000CF7973 /* Others */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Others;
+			sourceTree = "<group>";
+		};
+		C027651C2046559000CF7973 /* Resource */ = {
+			isa = PBXGroup;
+			children = (
+				C08D7E1220575BE600368548 /* HKVideoStream_log.txt */,
+				C09CBB72205665C000651B84 /* 123456-1-51184.mp4 */,
+				C09CBB8620567CDC00651B84 /* header.txt */,
+			);
+			path = Resource;
+			sourceTree = "<group>";
+		};
+		C027651D2046559000CF7973 /* Scenes */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Scenes;
+			sourceTree = "<group>";
+		};
+		C027651E2046559000CF7973 /* Sections */ = {
+			isa = PBXGroup;
+			children = (
+				C0276523204655F300CF7973 /* Controller */,
+				C0276524204655F300CF7973 /* Model */,
+				C0276522204655F300CF7973 /* View */,
+			);
+			path = Sections;
+			sourceTree = "<group>";
+		};
+		C027651F2046559000CF7973 /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				C0978DEB205913CB0092F531 /* HKTool */,
+				C0276528204699FB00CF7973 /* SocketTool */,
+			);
+			path = Tools;
+			sourceTree = "<group>";
+		};
+		C02765202046559000CF7973 /* Vendors */ = {
+			isa = PBXGroup;
+			children = (
+				C09CBB7C205671B700651B84 /* YMSocketUtils.h */,
+				C09CBB7B205671B700651B84 /* YMSocketUtils.m */,
+				C09CBB4D20564B2200651B84 /* HKSDK */,
+			);
+			path = Vendors;
+			sourceTree = "<group>";
+		};
+		C0276522204655F300CF7973 /* View */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		C0276523204655F300CF7973 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				C0276526204656AE00CF7973 /* ViewController.h */,
+				C0276525204656AE00CF7973 /* ViewController.m */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		C0276524204655F300CF7973 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		C0276528204699FB00CF7973 /* SocketTool */ = {
+			isa = PBXGroup;
+			children = (
+				C027652920469B2500CF7973 /* SocketTool.h */,
+				C027652A20469B2500CF7973 /* SocketTool.m */,
+				C0832D3D2051165000DC3851 /* XRTCPProtocol_HK.h */,
+				C0832D3E2051165000DC3851 /* XRTCPProtocol_HK.m */,
+			);
+			path = SocketTool;
+			sourceTree = "<group>";
+		};
+		C0978DEB205913CB0092F531 /* HKTool */ = {
+			isa = PBXGroup;
+			children = (
+				C0978DEC205916560092F531 /* HKVideoManager.h */,
+				C0978DED205916560092F531 /* HKVideoManager.m */,
+			);
+			path = HKTool;
+			sourceTree = "<group>";
+		};
+		C09CBB4D20564B2200651B84 /* HKSDK */ = {
+			isa = PBXGroup;
+			children = (
+				C09CBB4E20564B2200651B84 /* IOSPlayM4.h */,
+				C09CBB4F20564B2200651B84 /* libPlayCtrl.a */,
+				C09CBB5020564B2200651B84 /* MobilePlaySDKInterface.h */,
+			);
+			path = HKSDK;
+			sourceTree = "<group>";
+		};
+		D0181872A77A8052FE016B46 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C09CBB6E2056620400651B84 /* GLKit.framework */,
+				C09CBB6B205660D600651B84 /* Foundation.framework */,
+				C09CBB69205660C300651B84 /* UIKit.framework */,
+				C09CBB66205660A200651B84 /* OpenAL.framework */,
+				C09CBB652056609A00651B84 /* OpenGLES.framework */,
+				C09CBB622056605800651B84 /* AudioToolbox.framework */,
+				C09CBB6020565F3000651B84 /* libc++.tbd */,
+				C09CBB5E20565EFF00651B84 /* AVFoundation.framework */,
+				C09CBB5C20565EE200651B84 /* CoreMedia.framework */,
+				C09CBB5A20565EBD00651B84 /* VideoToolbox.framework */,
+				C09CBB5820565EA600651B84 /* libstdc++.6.0.9.tbd */,
+				C09CBB5620565B3200651B84 /* libz.tbd */,
+				C09CBB5420565A4B00651B84 /* libiconv.tbd */,
+				C09CBB5220565A3F00651B84 /* libbz2.tbd */,
+				940D10C3D99182639830BF0A /* Pods_SocketTestDemo.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -139,9 +403,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C02765052046556000CF7973 /* Build configuration list for PBXNativeTarget "SocketTestDemo" */;
 			buildPhases = (
+				5D659DB4DF47A4710668A907 /* [CP] Check Pods Manifest.lock */,
 				C02764D52046555E00CF7973 /* Sources */,
 				C02764D62046555E00CF7973 /* Frameworks */,
 				C02764D72046555E00CF7973 /* Resources */,
+				D61AADB5558E734CBD6D124A /* [CP] Embed Pods Frameworks */,
+				94357681E7DBBB2A3E4D0E62 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -194,6 +461,7 @@
 		C02764D12046555D00CF7973 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				CLASSPREFIX = XR;
 				LastUpgradeCheck = 0910;
 				ORGANIZATIONNAME = XR;
 				TargetAttributes = {
@@ -238,9 +506,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C02764E92046555F00CF7973 /* LaunchScreen.storyboard in Resources */,
 				C02764E62046555F00CF7973 /* Assets.xcassets in Resources */,
+				C08D7E1320575BE600368548 /* HKVideoStream_log.txt in Resources */,
 				C02764E42046555F00CF7973 /* Main.storyboard in Resources */,
+				C09CBB8720567CDD00651B84 /* header.txt in Resources */,
+				C09CBB73205665C000651B84 /* 123456-1-51184.mp4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -260,14 +530,66 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		5D659DB4DF47A4710668A907 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		94357681E7DBBB2A3E4D0E62 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SocketTestDemo/Pods-SocketTestDemo-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D61AADB5558E734CBD6D124A /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SocketTestDemo/Pods-SocketTestDemo-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		C02764D52046555E00CF7973 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C02764E12046555F00CF7973 /* ViewController.m in Sources */,
+				C0832D3F2051165000DC3851 /* XRTCPProtocol_HK.m in Sources */,
+				C0978DEE205916560092F531 /* HKVideoManager.m in Sources */,
+				C0276527204656AE00CF7973 /* ViewController.m in Sources */,
+				C02765212046559000CF7973 /* AppDelegate.m in Sources */,
+				C027652B20469B2500CF7973 /* SocketTool.m in Sources */,
+				C09CBB7D205671B700651B84 /* YMSocketUtils.m in Sources */,
 				C02764EC2046555F00CF7973 /* main.m in Sources */,
-				C02764DE2046555E00CF7973 /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -309,14 +631,6 @@
 				C02764E32046555F00CF7973 /* Base */,
 			);
 			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		C02764E72046555F00CF7973 /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				C02764E82046555F00CF7973 /* Base */,
-			);
-			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -428,13 +742,19 @@
 		};
 		C02765062046556000CF7973 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = F501EDF5A616AC6BDC218A1A /* Pods-SocketTestDemo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = FH544J7WDC;
+				DEVELOPMENT_TEAM = AU2WTZRMWG;
 				INFOPLIST_FILE = SocketTestDemo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.XR.SocketTestDemo;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/SocketTestDemo/Classes/Vendors/HKSDK",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.XR.SocketTest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -442,13 +762,19 @@
 		};
 		C02765072046556000CF7973 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0AE09507650A6A613C0871A0 /* Pods-SocketTestDemo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = FH544J7WDC;
+				DEVELOPMENT_TEAM = AU2WTZRMWG;
 				INFOPLIST_FILE = SocketTestDemo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.XR.SocketTestDemo;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/SocketTestDemo/Classes/Vendors/HKSDK",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.XR.SocketTest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
