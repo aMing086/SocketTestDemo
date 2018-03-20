@@ -10,6 +10,8 @@
 #import "YMSocketUtils.h"
 #import <objc/runtime.h>
 
+#define GBKEncoding CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000)
+
 NSString * const TYPE_UINT8 = @"TC"; // char是1个字节，8位
 NSString * const TYPE_UINT16 = @"TS"; // short是2个字节，16位
 NSString * const TYPE_UINT32 = @"TI";
@@ -60,8 +62,8 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
     }
     // 3、反序列化
     self.Head = [YMSocketUtils uint8FromBytes:[unEscapeData subdataWithRange:NSMakeRange(0, 1)]];
-    self.Length = [YMSocketUtils uint16FromBytes:[YMSocketUtils dataWithReverse:[unEscapeData subdataWithRange:NSMakeRange(1, 2)]]];
-    self.ProtocolValue = [YMSocketUtils uint16FromBytes:[YMSocketUtils dataWithReverse:[unEscapeData subdataWithRange:NSMakeRange(3, 2)]]];
+    self.Length = [YMSocketUtils uint16FromBytes:[unEscapeData subdataWithRange:NSMakeRange(1, 2)]];
+    self.ProtocolValue = [YMSocketUtils uint16FromBytes:[unEscapeData subdataWithRange:NSMakeRange(3, 2)]];
     self.ResCode = [YMSocketUtils uint16FromBytes:[unEscapeData subdataWithRange:NSMakeRange(5, 2)]];
     
     // 反编译消息体
@@ -125,6 +127,27 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
     return bXor;
 }
 
+- (NSString *)description
+{
+    unsigned int numIvars; // 成员变量个数
+    id obj = self;
+    objc_property_t *propertys = class_copyPropertyList(NSClassFromString([NSString stringWithUTF8String:object_getClassName(obj)]), &numIvars);
+    
+    NSString *type = nil;
+    NSString *name = nil;
+    
+    NSMutableString *tempStr = [NSMutableString string];
+    for (int i = 0; i < numIvars ; i++) {
+        objc_property_t thisProperty = propertys[i];
+        name = [NSString stringWithUTF8String:property_getName(thisProperty)];
+        type = [[[NSString stringWithUTF8String:property_getAttributes(thisProperty)] componentsSeparatedByString:@","] objectAtIndex:0]; // 变量类型 字符串
+        id propertyValue = [obj objectForKey:[name substringFromIndex:0]];
+        [tempStr appendFormat:@"%@:%@\t", name, propertyValue];
+    }
+    free(propertys);
+    return tempStr;
+}
+
 @end
 
 // 身份验证 ProtocolValue = 0x35
@@ -144,18 +167,31 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
 {
     NSMutableData *buf = [NSMutableData data];
     
-    NSString *string = @"123456";
-    NSStringEncoding encoding = CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000);
-    NSData *data = [string dataUsingEncoding:encoding];
+    // GUID
+    NSData *data = [self.GUID dataUsingEncoding:GBKEncoding];
     if ([data length] > 36) {
         data = [data subdataWithRange:NSMakeRange(0, 36)];
     } else {
         NSMutableData *mutableData = [NSMutableData dataWithData:data];
         for (int i = 0; i < 36 - [data length]; i++) {
-            [mutableData appendData:[@"0" dataUsingEncoding:encoding]];
+            [mutableData appendData:[@"0" dataUsingEncoding:GBKEncoding]];
         }
+        data = mutableData;
     }
     [buf appendData:data];
+    // 用户名
+    NSData *userNameData = [self.UserName dataUsingEncoding:GBKEncoding];
+    //  用户名长度
+    self.nameLen = [userNameData length];
+    [buf appendData:[YMSocketUtils byteFromUInt8:self.nameLen]];
+    [buf appendData:userNameData];
+    
+    // 密码
+    NSData *passwordData = [self.Password dataUsingEncoding:GBKEncoding];
+    // 密码长度
+    self.passwordLen = [self.Password length];
+    [buf appendData:[YMSocketUtils byteFromUInt8:self.passwordLen]];
+    [buf appendData:passwordData];
     
     return buf;
 }
@@ -172,6 +208,15 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
         self.ProtocolValue = 0x35;
     }
     return self;
+}
+
+- (BOOL)decodeBodyWithData:(NSData *)bodydata
+{
+    if (bodydata.length != 1) {
+        return NO;
+    }
+    self.bResult = [YMSocketUtils uint8FromBytes:bodydata];
+    return YES;
 }
 
 @end
@@ -210,27 +255,18 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
 
 
 // 解码消息体
-- (BOOL)decodeBodyWithData:(NSData *)data
+- (BOOL)decodeBodyWithData:(NSData *)bodydata
 {
-    SYSTEMTIME time  = {[YMSocketUtils uint16FromBytes:[YMSocketUtils dataWithReverse:[data subdataWithRange:NSMakeRange(0, 2)]]],
-        [YMSocketUtils uint16FromBytes:[YMSocketUtils dataWithReverse:[data subdataWithRange:NSMakeRange(2, 2)]]],
-        [YMSocketUtils uint16FromBytes:[YMSocketUtils dataWithReverse:[data subdataWithRange:NSMakeRange(4, 2)]]],
-        [YMSocketUtils uint16FromBytes:[YMSocketUtils dataWithReverse:[data subdataWithRange:NSMakeRange(6, 2)]]],
-        [YMSocketUtils uint16FromBytes:[YMSocketUtils dataWithReverse:[data subdataWithRange:NSMakeRange(8, 2)]]],
-        [YMSocketUtils uint16FromBytes:[YMSocketUtils dataWithReverse:[data subdataWithRange:NSMakeRange(10, 2)]]],
-        [YMSocketUtils uint16FromBytes:[YMSocketUtils dataWithReverse:[data subdataWithRange:NSMakeRange(12, 2)]]],
-        [YMSocketUtils uint16FromBytes:[YMSocketUtils dataWithReverse:[data subdataWithRange:NSMakeRange(14, 2)]]]};
+    SYSTEMTIME time  = {[YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(0, 2)]],
+        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(2, 2)]],
+        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(4, 2)]],
+        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(6, 2)]],
+        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(8, 2)]],
+        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(10, 2)]],
+        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(12, 2)]],
+        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(14, 2)]]};
     self.sysTime = time;
-    /*
-    self.sysTime = SYSTEMTIMEMake([YMSocketUtils uint16FromBytes:[YMSocketUtils dataWithReverse:[self.BodyData subdataWithRange:NSMakeRange(0, 2)]]],
-                                  [YMSocketUtils uint16FromBytes:[YMSocketUtils dataWithReverse:[self.BodyData subdataWithRange:NSMakeRange(2, 2)]]],
-                                  [YMSocketUtils uint16FromBytes:[YMSocketUtils dataWithReverse:[self.BodyData subdataWithRange:NSMakeRange(4, 2)]]],
-                                  [YMSocketUtils uint16FromBytes:[YMSocketUtils dataWithReverse:[self.BodyData subdataWithRange:NSMakeRange(6, 2)]]],
-                                  [YMSocketUtils uint16FromBytes:[YMSocketUtils dataWithReverse:[self.BodyData subdataWithRange:NSMakeRange(8, 2)]]],
-                                  [YMSocketUtils uint16FromBytes:[YMSocketUtils dataWithReverse:[self.BodyData subdataWithRange:NSMakeRange(10, 2)]]],
-                                  [YMSocketUtils uint16FromBytes:[YMSocketUtils dataWithReverse:[self.BodyData subdataWithRange:NSMakeRange(12, 2)]]],
-                                  [YMSocketUtils uint16FromBytes:[YMSocketUtils dataWithReverse:[self.BodyData subdataWithRange:NSMakeRange(14, 2)]]]);
-     */
+   
     return YES;
 }
 
@@ -247,8 +283,49 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
     self = [super init];
     if (self) {
         self.ProtocolValue = 0x40;
+        self.senderType = 3; // ios
+        self.version = 1;
+#warning 序列号 自增 版本？？
+        self.seqNo = 1;
     }
     return self;
+}
+
+// 编码消息体
+- (NSData *)encodeBody
+{
+    NSMutableData *buf = [NSMutableData data];
+    
+    [buf appendData:[YMSocketUtils byteFromUInt8:self.version]];
+    [buf appendData:[YMSocketUtils byteFromUInt8:self.senderType]];
+    [buf appendData:[YMSocketUtils byteFromUInt8:self.videoCmd]];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.seqNo]];
+    [buf appendData:[self encodeVideo]];
+    return buf;
+}
+
+// 解码消息体
+- (BOOL)decodeBodyWithData:(NSData *)bodydata
+{
+    if (bodydata.length < 7) {
+        return NO;
+    }
+    self.version = [YMSocketUtils uint8FromBytes:[bodydata subdataWithRange:NSMakeRange(0, 1)]];
+    self.senderType = [YMSocketUtils uint8FromBytes:[bodydata subdataWithRange:NSMakeRange(1, 1)]];
+    self.videoCmd = [YMSocketUtils uint8FromBytes:[bodydata subdataWithRange:NSMakeRange(2, 1)]];
+    self.seqNo = [YMSocketUtils uint32FromBytes:[bodydata subdataWithRange:NSMakeRange(3, 4)]];
+    [self decodeVideoWithData:[bodydata subdataWithRange:NSMakeRange(7, [bodydata length] - 7)]];
+    return YES;
+}
+
+- (NSData *)encodeVideo
+{
+    return [NSData data];
+}
+
+- (BOOL)decodeVideoWithData:(NSData *)data
+{
+    return NO;
 }
 
 @end
@@ -264,6 +341,86 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
         self.senderType = 3;
     }
     return self;
+}
+
+- (NSData *)encodeVideo
+{
+    NSMutableData *buf = [NSMutableData data];
+    NSData *deviceIDData = [self.deviceID dataUsingEncoding:GBKEncoding];
+    
+    [buf appendData:[YMSocketUtils bytesFromUInt16:[deviceIDData length]]];
+    [buf appendData:deviceIDData];
+    
+    return buf;
+}
+
+- (BOOL)decodeVideoWithData:(NSData *)data
+{
+    if (data.length < 2) {
+        return NO;
+    }
+    ushort lenght = [YMSocketUtils uint16FromBytes:[data subdataWithRange:NSMakeRange(0, 2)]];
+    if (data.length != 2 + lenght) {
+        return NO;
+    }
+    self.deviceID = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(2, lenght)] encoding:GBKEncoding];
+    return YES;
+}
+
+@end
+
+// class 通道信息
+@implementation XR_VideoChannelInfo
+
+@end
+
+// 查询通道信息应答 videoCmd = 0x01 中心
+@implementation XRTCPProtocol_VideoChannelAck
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.videoCmd = 0x01;
+        self.senderType = 3;
+    }
+    return self;
+}
+
+- (NSData *)encodeVideo
+{
+    NSMutableData *buf = [NSMutableData data];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.respSeqNo]];
+    NSData *deviceIDData = [self.deviceID dataUsingEncoding:GBKEncoding];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:[deviceIDData length]]];
+    [buf appendData:deviceIDData];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.channelNum]];
+    for (XR_VideoChannelInfo *channelInfo in self.Channels) {
+        [buf appendData:[YMSocketUtils bytesFromUInt32:channelInfo.nChannelNo]];
+        [buf appendData:[YMSocketUtils byteFromUInt8:channelInfo.bChannelType]];
+    }
+    return buf;
+}
+
+- (BOOL)decodeVideoWithData:(NSData *)data
+{
+    self.seqNo = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(0, 4)]];
+    ushort lenght = [YMSocketUtils uint16FromBytes:[data subdataWithRange:NSMakeRange(4, 2)]];
+    self.deviceID = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(6, lenght)] encoding:GBKEncoding];
+    self.channelNum = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(lenght + 6, 4)]];
+    NSMutableArray *tempArray = [NSMutableArray array];
+    int index = lenght + 10;
+    for (int i = 0; i < self.channelNum; i++) {
+        XR_VideoChannelInfo *channelInfo = [[XR_VideoChannelInfo alloc] init];
+        channelInfo.nChannelNo = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+        index += 4;
+        channelInfo.bChannelType = [YMSocketUtils uint8FromBytes:[data subdataWithRange:NSMakeRange(index, 1)]];
+        index += 1;
+        [tempArray addObject:channelInfo];
+    }
+    self.Channels = tempArray;
+    
+    return YES;
 }
 
 @end

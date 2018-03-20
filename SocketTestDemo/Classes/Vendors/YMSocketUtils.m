@@ -139,11 +139,10 @@
 + (uint16_t)uint16FromBytes:(NSData *)fData
 {
     NSAssert(fData.length == 2, @"uint16FromBytes: (data length != 2)");
-    NSData *data = [self dataWithReverse:fData];;
     uint16_t val0 = 0;
     uint16_t val1 = 0;
-    [data getBytes:&val0 range:NSMakeRange(0, 1)];
-    [data getBytes:&val1 range:NSMakeRange(1, 1)];
+    [fData getBytes:&val0 range:NSMakeRange(0, 1)];
+    [fData getBytes:&val1 range:NSMakeRange(1, 1)];
     
     uint16_t dstVal = (val0 & 0xff) + ((val1 << 8) & 0xff00);
     return dstVal;
@@ -152,16 +151,15 @@
 + (uint32_t)uint32FromBytes:(NSData *)fData
 {
     NSAssert(fData.length == 4, @"uint16FromBytes: (data length != 4)");
-    NSData *data = [self dataWithReverse:fData];
     
     uint32_t val0 = 0;
     uint32_t val1 = 0;
     uint32_t val2 = 0;
     uint32_t val3 = 0;
-    [data getBytes:&val0 range:NSMakeRange(0, 1)];
-    [data getBytes:&val1 range:NSMakeRange(1, 1)];
-    [data getBytes:&val2 range:NSMakeRange(2, 1)];
-    [data getBytes:&val3 range:NSMakeRange(3, 1)];
+    [fData getBytes:&val0 range:NSMakeRange(0, 1)];
+    [fData getBytes:&val1 range:NSMakeRange(1, 1)];
+    [fData getBytes:&val2 range:NSMakeRange(2, 1)];
+    [fData getBytes:&val3 range:NSMakeRange(3, 1)];
     
     uint32_t dstVal = (val0 & 0xff) + ((val1 << 8) & 0xff00) + ((val1 << 16) & 0xff0000) + ((val1 << 24) & 0xff000000);
     return dstVal;

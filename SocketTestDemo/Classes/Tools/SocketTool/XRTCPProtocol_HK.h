@@ -50,15 +50,12 @@ extern NSString * const TYPE_ARRAY;
 // 星软客户端协议包
 @interface XRTCPProtocol_Basic : NSObject
 
-@property (nonatomic, assign) uint8_t Head;
-@property (nonatomic, assign) uint16_t Length;
-@property (nonatomic, assign) uint16_t ProtocolValue;
-@property (nonatomic, assign) uint16_t ResCode;
-
-@property (nonatomic, strong) NSData *BodyData;
-
-@property (nonatomic, assign) uint8_t CheckValue;
-@property (nonatomic, assign) uint8_t Tail;
+@property (nonatomic, assign) uint8_t Head; // 数据头
+@property (nonatomic, assign) uint16_t Length; // 数据长度（不包括头尾）
+@property (nonatomic, assign) uint16_t ProtocolValue; // 协议值
+@property (nonatomic, assign) uint16_t ResCode; // 反馈值
+@property (nonatomic, assign) uint8_t CheckValue; // 校验值（异或和,不包括头尾）
+@property (nonatomic, assign) uint8_t Tail; // 数据尾
 
 // 编码
 - (NSData *)encodePack;
@@ -67,7 +64,7 @@ extern NSString * const TYPE_ARRAY;
 // 编码消息体
 - (NSData *)encodeBody;
 // 解码消息体
-- (BOOL)decodeBodyWithData:(NSData *)data;
+- (BOOL)decodeBodyWithData:(NSData *)bodydata;
 
 
 @end
@@ -76,16 +73,17 @@ extern NSString * const TYPE_ARRAY;
 @interface XRTCPProtocol_Login : XRTCPProtocol_Basic
 
 @property (nonatomic, strong) NSString *GUID; // 客户端会话ID
+@property (nonatomic, assign) uint8_t nameLen; // 用户名长度
 @property (nonatomic, strong) NSString *UserName; // 用户名
+@property (nonatomic, assign) uint8_t passwordLen; // 密码长度
 @property (nonatomic, strong) NSString *Password; // 密码
-
 
 @end
 
 // 身份验证应答 ProtocolValue = 0x35
 @interface XRTCPProtocol_LoginAck : XRTCPProtocol_Basic
 
-@property (nonatomic, assign) Byte bResult; // 验证结果
+@property (nonatomic, assign) uint8_t bResult; // 验证结果
 
 @end
 
@@ -123,19 +121,21 @@ extern NSString * const TYPE_ARRAY;
 
 @end
 
-typedef struct tagXRVideoChannel
-{
-    uint nChannelNo;    //通道号
-    Byte bChannelType;    //通道类型
-}XRVideoChannel, LPXRVideoChannel;
+// class 通道信息
+@interface XR_VideoChannelInfo : NSObject
 
+@property (nonatomic, assign) uint nChannelNo;    //通道号
+@property (nonatomic, assign) uint8_t bChannelType;    //通道类型
+
+@end
 
 // 查询通道信息应答 videoCmd = 0x01 中心
 @interface XRTCPProtocol_VideoChannelAck : XRTCPProtocol_Video
 
 @property (nonatomic, assign) uint respSeqNo; // 应答序列号
 @property (nonatomic, strong) NSString *deviceID; // 设备ID
-@property (nonatomic, strong) NSArray *Channels; // 通道信息列表
+@property (nonatomic, assign) uint channelNum; // 通道数
+@property (nonatomic, strong) NSArray<XR_VideoChannelInfo *> *Channels; // 通道信息列表
 
 @end
 
