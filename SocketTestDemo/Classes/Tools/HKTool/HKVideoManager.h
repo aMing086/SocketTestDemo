@@ -8,10 +8,17 @@
 
 #import <Foundation/Foundation.h>
 
+typedef enum
+{
+    HKVideoImageTypeJPEG, // JPEG
+    HKVideoImageTypeBMP, // BMP
+}HKVideoImageType;
+
 @interface HKVideoManager : NSObject
 
 @property (nonatomic, assign, readonly) int nPort;
 @property (nonatomic, assign) void *hWnd;
+@property (nonatomic, assign) BOOL bSound;
 
 - (instancetype)initWithHWnd:(void *)hWnd;
 

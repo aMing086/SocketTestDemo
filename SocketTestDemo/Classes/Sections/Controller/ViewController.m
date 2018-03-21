@@ -109,6 +109,41 @@
     [self.clientSocket writeData:videoChannelData withTimeout:-1 tag:videoChannel.ProtocolValue];
 }
 
+// 获取设备信息
+- (IBAction)getDeviceInfoAction:(UIButton *)sender {
+    XRTCPProtocol_VideoDevice *videoDevice = [[XRTCPProtocol_VideoDevice alloc] init];
+    videoDevice.deviceID = @"120000479";
+    NSData *videoDeviceData = [videoDevice encodePack];
+    [self.clientSocket writeData:videoDeviceData withTimeout:-1 tag:videoDevice.ProtocolValue];
+}
+
+// 开始预览
+- (IBAction)startPreview:(UIButton *)sender {
+    XRTCPProtocol_VideoStartPreview *startPreview = [[XRTCPProtocol_VideoStartPreview alloc] init];
+    
+    [self.clientSocket writeData:[startPreview encodePack] withTimeout:-1 tag:startPreview.ProtocolValue];
+}
+
+// 停止预览
+- (IBAction)stopPreview:(UIButton *)sender {
+    XRTCPProtocol_VideoStopPreview *videoStopPreview = [[XRTCPProtocol_VideoStopPreview alloc] init];
+    [self.clientSocket writeData:[videoStopPreview encodePack] withTimeout:-1 tag:videoStopPreview.ProtocolValue];
+}
+
+// 获取预览视频流
+- (IBAction)getPreviewStream:(UIButton *)sender {
+    XRTCPProtocol_VideoGetPreviewStream *videoGetPreviewStream = [[XRTCPProtocol_VideoGetPreviewStream alloc] init];
+    
+    [self.clientSocket writeData:[videoGetPreviewStream encodePack] withTimeout:-1 tag:videoGetPreviewStream.ProtocolValue];
+}
+
+// 停止接收预览视频流
+- (IBAction)stopGetPreviewVideoStream:(UIButton *)sender {
+    XRTCPProtocol_VideoStopPreviewStream *videoStopPreviewStream = [[XRTCPProtocol_VideoStopPreviewStream alloc] init];
+    
+    [self.clientSocket writeData:[videoStopPreviewStream encodePack] withTimeout:-1 tag:videoStopPreviewStream.ProtocolValue];
+}
+
 #pragma mark -GCDAsyncSocketDelegate
 - (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port
 {
@@ -123,19 +158,21 @@
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
     // 处理从服务器端获取到的数据
-    XRTCPProtocol_Basic *basic = [[XRTCPProtocol_Basic alloc] init];
-    BOOL flag = [basic decodePackWithData:data length:(int)[data length]];
-    if (!flag) {
-        NSLog(@"解析失败");
-    }
-    if (basic.ProtocolValue == 0x05) {
+//    XRTCPProtocol_Basic *basic = [[XRTCPProtocol_Basic alloc] init];
+//    BOOL flag = [basic decodePackWithData:data length:(int)[data length]];
+//    if (!flag) {
+//        NSLog(@"解析失败");
+//    }
+    XRTCPProtocol_Basic *basic;
+    BOOL flag;
+    if (tag == 0x05) {
         basic = [[XRTCPProtocol_Contact alloc] init];
         flag = [basic decodePackWithData:data length:(int)[data length]];
-    } else if (basic.ProtocolValue == 0x35) {
+    } else if (tag == 0x35) {
         basic = [[XRTCPProtocol_LoginAck alloc] init];
         flag = [basic decodePackWithData:data length:(int)[data length]];
 
-    } else if (basic.ProtocolValue == 0x40) {
+    } else if (tag == 0x40) {
         XRTCPProtocol_Video * video = [[XRTCPProtocol_Video alloc] init];
         flag = [video decodePackWithData:data length:(int)[data length]];
         
@@ -149,34 +186,40 @@
             }
             case 0x02:
             {
-                
+                XRTCPProtocol_VideoDeviceAck *deviceAck = [[XRTCPProtocol_VideoDeviceAck alloc] init];
+                flag = [deviceAck decodePackWithData:data length:(int)[data length]];
+                video = deviceAck;
                 break;
             }
             case 0x10:
             {
-                
+                XRTCPProtocol_VideoStartPreviewAck *startPreviewAck = [[XRTCPProtocol_VideoStartPreviewAck alloc] init];
+                flag = [startPreviewAck decodePackWithData:data length:(int)data.length];
+                video = startPreviewAck;
                 break;
             }
             case 0x11:
             {
-                
+                XRTCPProtocol_VideoStopPreviewAck *stopPreviewAck = [[XRTCPProtocol_VideoStopPreviewAck alloc] init];
+                flag = [stopPreviewAck decodePackWithData:data length:(int)data.length];
+                video = stopPreviewAck;
                 break;
             }
             case 0x12:
             {
-                
+                XRTCPProtocol_VideoGetPreviewStreamAck *getPreviewStreamAck = [[XRTCPProtocol_VideoGetPreviewStreamAck alloc] init];
+                flag = [getPreviewStreamAck decodePackWithData:data length:(int)data.length];
+                video = getPreviewStreamAck;
                 break;
             }
             case 0x13:
             {
-                
+                XRTCPProtocol_VideoPreviewStream *previewStream = [[XRTCPProtocol_VideoPreviewStream alloc] init];
+                flag = [previewStream decodePackWithData:data length:(int)data.length];
+                video = previewStream;
                 break;
             }
-            case 0x14:
-            {
-                
-                break;
-            }
+            
             default:
                 break;
         }

@@ -16,6 +16,7 @@
     self = [super init];
     if (self) {
         self.hWnd = hWnd;
+        
     }
     
     return self;
@@ -47,6 +48,11 @@
         }
         
     } else {
+        if (_bSound) {
+            
+        } else {
+            
+        }
         int time = 1000;
         while (time > 0) {
             // 播放数据流
@@ -63,9 +69,23 @@
     return YES;
 }
 
+// 停止播放
 - (void)stopPlay
 {
-    
+    PlayM4_Stop(_nPort);
+    PlayM4_StopSoundShare(_nPort);
+    PlayM4_CloseStream(_nPort);
+    PlayM4_FreePort(_nPort);
+}
+
+// 抓图
+- (void)screenshotsWithImageType:(HKVideoImageType)imageType
+{
+    if (imageType == HKVideoImageTypeBMP) {
+        
+    } else {
+        
+    }
 }
 
 @end

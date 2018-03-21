@@ -72,7 +72,7 @@ extern NSString * const TYPE_ARRAY;
 // 身份验证 ProtocolValue = 0x35
 @interface XRTCPProtocol_Login : XRTCPProtocol_Basic
 
-@property (nonatomic, strong) NSString *GUID; // 客户端会话ID
+@property (nonatomic, strong) NSString *GUID; // 客户端会话ID(36字节)
 @property (nonatomic, assign) uint8_t nameLen; // 用户名长度
 @property (nonatomic, strong) NSString *UserName; // 用户名
 @property (nonatomic, assign) uint8_t passwordLen; // 密码长度
@@ -149,9 +149,9 @@ extern NSString * const TYPE_ARRAY;
 // 查询设备信息应答 videoCmd = 0x02 中心
 @interface XRTCPProtocol_VideoDeviceAck : XRTCPProtocol_Video
 
-@property (nonatomic, strong) NSString *deviceID; // 设备ID
 @property (nonatomic, assign) uint respSeqNo; // 应答序列号
-@property (nonatomic, assign) Byte bOnline; // 是否在线
+@property (nonatomic, strong) NSString *deviceID; // 设备ID
+@property (nonatomic, assign) uint8_t bOnline; // 是否在线
 @property (nonatomic, strong) NSString *deviceSN; // 设备序列号
 @property (nonatomic, strong) NSString *deviceVer; // 固件版本
 @property (nonatomic, strong) NSString *SIMSN; // SIM卡序列号
@@ -163,7 +163,7 @@ extern NSString * const TYPE_ARRAY;
 
 @property (nonatomic, strong) NSString *deviceID; // 设备ID
 @property (nonatomic, assign) uint channelNo; // 通道号
-@property (nonatomic, assign) Byte streamType; // 流类型 0-主码流 1-子码流
+@property (nonatomic, assign) uint8_t streamType; // 流类型 0-主码流 1-子码流
 
 @end
 
@@ -173,7 +173,6 @@ extern NSString * const TYPE_ARRAY;
 @property (nonatomic, assign) uint respSeqNo; // 应答序列号
 @property (nonatomic, strong) NSString *deviceID; // 设备ID
 @property (nonatomic, assign) uint channelNo; // 通道号
-@property (nonatomic, assign) uint result; // 结果
 @property (nonatomic, assign) uint sessionID; // 会话ID
 @property (nonatomic, strong) NSString *streamIP; // 流服务器IP
 @property (nonatomic, assign) ushort streamPort; // 流服务器端口
@@ -193,7 +192,6 @@ extern NSString * const TYPE_ARRAY;
 @interface XRTCPProtocol_VideoStopPreviewAck : XRTCPProtocol_Video
 
 @property (nonatomic, assign) uint respSeqNo; // 应答序列号
-@property (nonatomic, assign) uint result; // 结果
 
 @end
 
@@ -211,7 +209,6 @@ extern NSString * const TYPE_ARRAY;
 @interface XRTCPProtocol_VideoGetPreviewStreamAck : XRTCPProtocol_Video
 
 @property (nonatomic, assign) uint respSeqNo; // 应答序列号
-@property (nonatomic, assign) uint result; // 结果
 
 @end
 
@@ -221,8 +218,8 @@ extern NSString * const TYPE_ARRAY;
 @property (nonatomic, strong) NSString *deviceID; // 设备ID
 @property (nonatomic, assign) uint channelNo; // 通道号
 @property (nonatomic, assign) uint sessionID; // 会话ID
-@property (nonatomic, assign) uint8_t streamType; // 流类型
-@property (nonatomic, assign) uint8_t dataType; // 数据类型
+@property (nonatomic, assign) uint8_t streamType; // 流类型 1-HK
+@property (nonatomic, assign) uint8_t dataType; // 数据类型 HK: 1-码流头 2-码流数据
 @property (nonatomic, strong) NSData *videoData; // 视频数据
 
 @end
