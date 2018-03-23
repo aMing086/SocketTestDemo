@@ -13,6 +13,7 @@
 
 // 客户端socket
 @property (nonatomic, strong) GCDAsyncSocket *clientSocket;
+@property (nonatomic, strong) GCDAsyncSocket *clientSocket_two;
 
 @end
 

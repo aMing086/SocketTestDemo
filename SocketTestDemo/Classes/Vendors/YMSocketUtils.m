@@ -161,7 +161,7 @@
     [fData getBytes:&val2 range:NSMakeRange(2, 1)];
     [fData getBytes:&val3 range:NSMakeRange(3, 1)];
     
-    uint32_t dstVal = (val0 & 0xff) + ((val1 << 8) & 0xff00) + ((val1 << 16) & 0xff0000) + ((val1 << 24) & 0xff000000);
+    uint32_t dstVal = (val0 & 0xff) + ((val1 << 8) & 0xff00) + ((val2 << 16) & 0xff0000) + ((val3 << 24) & 0xff000000);
     return dstVal;
 }
 

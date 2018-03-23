@@ -608,7 +608,7 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
     [buf appendData:[YMSocketUtils bytesFromUInt16:[deviceIDData length]]];
     [buf appendData:deviceIDData];
     [buf appendData:[YMSocketUtils bytesFromUInt32:self.channelNo]];
-    [buf appendData:[YMSocketUtils byteFromUInt8:self.streamType]];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.sessionID]];
     
     return buf;
 }

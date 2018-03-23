@@ -184,7 +184,7 @@ extern NSString * const TYPE_ARRAY;
 
 @property (nonatomic, strong) NSString *deviceID; // 设备ID
 @property (nonatomic, assign) uint channelNo; // 通道号
-@property (nonatomic, assign) Byte streamType; // 流类型 0-主码流 1-子码流
+@property (nonatomic, assign) uint sessionID; // 会话ID
 
 @end
 
