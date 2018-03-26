@@ -40,19 +40,15 @@
             [self stopPlay];
             return NO;
         }
+        self.PlayStatus = YES;
         // 开始解码播放
         if (!PlayM4_Play(_nPort, _hWnd))
         {
             [self stopPlay];
             return NO;
         }
-        
-    } else {
-        if (_bSound) {
-            
-        } else {
-            
-        }
+    } else if (self.PlayStatus){
+    
         int time = 1000;
         while (time > 0) {
             // 播放数据流
@@ -76,6 +72,7 @@
     PlayM4_StopSoundShare(_nPort);
     PlayM4_CloseStream(_nPort);
     PlayM4_FreePort(_nPort);
+    self.PlayStatus = NO;
 }
 
 // 抓图

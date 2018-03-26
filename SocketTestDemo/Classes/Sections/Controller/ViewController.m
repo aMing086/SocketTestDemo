@@ -8,22 +8,29 @@
 
 #import "ViewController.h"
 #import "XRTCPProtocol_HK.h"
+#import "HKVideoManager.h"
 
 @interface ViewController ()<GCDAsyncSocketDelegate>
 {
+    XRTCPProtocol_Basic *basic;
+    XRTCPProtocol_Video *video;
     XRTCPProtocol_VideoChannelAck *videoChannelAck;
     XRTCPProtocol_VideoDeviceAck *deviceAck;
     XRTCPProtocol_VideoStartPreviewAck *startPreviewAck;
     XRTCPProtocol_VideoStopPreviewAck *stopPreviewAck;
     XRTCPProtocol_VideoGetPreviewStreamAck *getPreviewStreamAck;
     XRTCPProtocol_VideoPreviewStream *previewStream;
-    
+    NSMutableData *_videoData;
+    NSMutableDictionary *_videoDic;
+    NSInteger  _index;
+    BOOL _isPlay;
 }
 
 @property (nonatomic, assign) BOOL connected;
 @property (nonatomic, assign) BOOL connectedTwo;
 @property (nonatomic, strong) NSTimer *connectTimer;
 @property (nonatomic, strong) NSTimer *connectTimerTwo;
+@property (nonatomic, strong) HKVideoManager *videoManager;
 
 
 @property (weak, nonatomic) IBOutlet UIView *playView;
@@ -39,7 +46,7 @@
 - (GCDAsyncSocket *)clientSocket
 {
     if (!_clientSocket) {
-        _clientSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
+        _clientSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_global_queue(0, 0)];
     }
     return _clientSocket;
 }
@@ -47,9 +54,17 @@
 - (GCDAsyncSocket *)clientSocket_two
 {
     if (!_clientSocket_two) {
-        _clientSocket_two = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
+        _clientSocket_two = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_global_queue(0, 0)];
     }
     return _clientSocket_two;
+}
+
+- (HKVideoManager *)videoManager
+{
+    if (!_videoManager) {
+        _videoManager = [[HKVideoManager alloc] initWithHwnd:(__bridge void *)self.playView];
+    }
+    return _videoManager;
 }
 
 //- (void)setLogStr:(NSMutableString *)logStr
@@ -63,6 +78,8 @@
     [super viewDidLoad];
     
     self.logStr = [NSMutableString stringWithString:@"Log:\n"];
+    _videoData = [NSMutableData data];
+    
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
@@ -110,13 +127,35 @@
 // 添加操作日志
 - (void)appendLogStr:(NSString *)str
 {
-    [self.logStr appendString:str];
-    self.textView.text = self.logStr;
+//    [self.logStr appendString:str];
+//    self.textView.text = self.logStr;
 }
 
 #pragma mark -Action
 // 连接服务器
 - (IBAction)linkServiceAction:(UIButton *)sender {
+//    NSString *path = [[NSBundle mainBundle] pathForResource:@"123456-1-51184" ofType:@"mp4"];
+//    NSData *data = [NSData dataWithContentsOfFile:path];
+//    NSInteger index = 0;
+//    for (int i = 0; i < 1000; i++) {
+//        if (i == 0) {
+//            [self.videoManager playStreamData:[data subdataWithRange:NSMakeRange(index, 40)] dataType:1 length:40];
+//            index += 40;
+//        } else {
+//            if (data.length >= index + 1400) {
+//                if (i > 5) {
+//                    NSLog(@"%d", i);
+//                    [self.videoManager playStreamData:[data subdataWithRange:NSMakeRange(index, 1400)] dataType:2 length:1400];
+//                    index += 1400;
+//                }
+//
+//            } else {
+//                index = 40;
+//                [self.videoManager playStreamData:[data subdataWithRange:NSMakeRange(index, 1400)] dataType:2 length:1400];
+//            }
+//
+//        }
+//    }
     
     if (self.connected) {
         [self.clientSocket disconnect];
@@ -160,7 +199,7 @@
 - (IBAction)startPreview:(UIButton *)sender {
     XRTCPProtocol_VideoStartPreview *startPreview = [[XRTCPProtocol_VideoStartPreview alloc] init];
     startPreview.deviceID = @"123456";
-    startPreview.channelNo = 3;
+    startPreview.channelNo = 4;
     startPreview.streamType = 0;
     [self.clientSocket writeData:[startPreview encodePack] withTimeout:-1 tag:startPreview.ProtocolValue];
 }
@@ -223,75 +262,103 @@
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
-    // 处理从服务器端获取到的数据
-    XRTCPProtocol_Basic *basic = [[XRTCPProtocol_Basic alloc] init];
-    BOOL flag = [basic decodePackWithData:data length:(int)[data length]];
-    if (!flag) {
-        NSLog(@"解析失败");
+//    dispatch_queue_t queue = dispatch_queue_create("de", NULL);
+//    dispatch_async(queue, ^{
+    
+        // 处理从服务器端获取到的数据
+    if (!basic) {
+        basic = [[XRTCPProtocol_Basic alloc] init];
     }
-//    XRTCPProtocol_Basic *basic;
-//    BOOL flag;
-    if (basic.ProtocolValue == 0x05) {
-        basic = [[XRTCPProtocol_Contact alloc] init];
-        flag = [basic decodePackWithData:data length:(int)[data length]];
-    } else if (basic.ProtocolValue == 0x35) {
-        basic = [[XRTCPProtocol_LoginAck alloc] init];
-        flag = [basic decodePackWithData:data length:(int)[data length]];
-
-    } else if (basic.ProtocolValue == 0x40) {
-        XRTCPProtocol_Video * video = [[XRTCPProtocol_Video alloc] init];
-        flag = [video decodePackWithData:data length:(int)[data length]];
+        BOOL flag = [basic decodePackWithData:data length:(int)[data length]];
         
-        switch (video.videoCmd) {
-            case 0x01:
-            {
-                videoChannelAck = [[XRTCPProtocol_VideoChannelAck alloc] init];
-                flag = [videoChannelAck decodePackWithData:data length:(int)[data length]];
-                video = videoChannelAck;
-                break;
-            }
-            case 0x02:
-            {
-                deviceAck = [[XRTCPProtocol_VideoDeviceAck alloc] init];
-                flag = [deviceAck decodePackWithData:data length:(int)[data length]];
-                video = deviceAck;
-                break;
-            }
-            case 0x10:
-            {
-                startPreviewAck = [[XRTCPProtocol_VideoStartPreviewAck alloc] init];
-                flag = [startPreviewAck decodePackWithData:data length:(int)data.length];
-                video = startPreviewAck;
-                break;
-            }
-            case 0x11:
-            {
-                stopPreviewAck = [[XRTCPProtocol_VideoStopPreviewAck alloc] init];
-                flag = [stopPreviewAck decodePackWithData:data length:(int)data.length];
-                video = stopPreviewAck;
-                break;
-            }
-            case 0x12:
-            {
-                getPreviewStreamAck = [[XRTCPProtocol_VideoGetPreviewStreamAck alloc] init];
-                flag = [getPreviewStreamAck decodePackWithData:data length:(int)data.length];
-                video = getPreviewStreamAck;
-                break;
-            }
-            case 0x13:
-            {
-                previewStream = [[XRTCPProtocol_VideoPreviewStream alloc] init];
-                flag = [previewStream decodePackWithData:data length:(int)data.length];
-                video = previewStream;
-                break;
-            }
+        //    XRTCPProtocol_Basic *basic;
+        //    BOOL flag;
+        if (basic.ProtocolValue == 0x05) {
+            flag = [[[XRTCPProtocol_Contact alloc] init] decodePackWithData:data length:(int)[data length]];
+        } else if (basic.ProtocolValue == 0x35) {
+            flag = [[[XRTCPProtocol_LoginAck alloc] init] decodePackWithData:data length:(int)[data length]];
             
-            default:
-                break;
+        } else if (basic.ProtocolValue == 0x40) {
+            if (!video) {
+               video = [[XRTCPProtocol_Video alloc] init];
+            }
+            flag = [video decodePackWithData:data length:(int)[data length]];
+            
+            switch (video.videoCmd) {
+                case 0x01:
+                {
+                    videoChannelAck = [[XRTCPProtocol_VideoChannelAck alloc] init];
+                    flag = [videoChannelAck decodePackWithData:data length:(int)[data length]];
+                    break;
+                }
+                case 0x02:
+                {
+                    deviceAck = [[XRTCPProtocol_VideoDeviceAck alloc] init];
+                    flag = [deviceAck decodePackWithData:data length:(int)[data length]];
+                    break;
+                }
+                case 0x10:
+                {
+                    startPreviewAck = [[XRTCPProtocol_VideoStartPreviewAck alloc] init];
+                    flag = [startPreviewAck decodePackWithData:data length:(int)data.length];
+                    break;
+                }
+                case 0x11:
+                {
+                    stopPreviewAck = [[XRTCPProtocol_VideoStopPreviewAck alloc] init];
+                    flag = [stopPreviewAck decodePackWithData:data length:(int)data.length];
+                    break;
+                }
+                case 0x12:
+                {
+                    getPreviewStreamAck = [[XRTCPProtocol_VideoGetPreviewStreamAck alloc] init];
+                    flag = [getPreviewStreamAck decodePackWithData:data length:(int)data.length];
+                    break;
+                }
+                case 0x13:
+                {
+                    previewStream = [[XRTCPProtocol_VideoPreviewStream alloc] init];
+                    flag = [previewStream decodePackWithData:data length:(int)data.length];
+                    video = previewStream;
+                    [_videoData appendData:data];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self.videoManager playStreamData:previewStream.videoData dataType:previewStream.dataType  length:[previewStream.videoData length]];
+                        });
+                    /*
+                     if (flag) {
+                     NSThread *thread = [NSThread currentThread];
+                     NSLog(@"%@", thread.name);
+                     dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                     dispatch_async(dispatch_get_main_queue(), ^{
+                     [self.videoManager playStreamData:previewStream.videoData dataType:previewStream.dataType length:[previewStream.videoData length]];
+                     //                            if (!self.videoManager.PlayStatus) {
+                     //                                NSString *path = [[NSBundle mainBundle] pathForResource:@"123456-1-51184" ofType:@"mp4"];
+                     //                                NSData *data = [NSData dataWithContentsOfFile:path];
+                     //                                [self.videoManager playStreamData:[data subdataWithRange:NSMakeRange(0, 40)] dataType:1 length:40];
+                     //                            } else {
+                     //                                _index++;
+                     //                                if (_index > 1000) {
+                     //                                    return ;
+                     //                                }
+                     //
+                     //                            }
+                     });
+                     });
+                     }
+                     */
+                    
+                    break;
+                }
+                    
+                default:
+                    break;
+            }
         }
-        
-        basic = video;
-    }
+        if (!flag) {
+            NSLog(@"0");
+        }
+//    });
+   
     // 读取到服务器端数据后，继续读取
     [sock readDataWithTimeout:-1 tag:0];
     

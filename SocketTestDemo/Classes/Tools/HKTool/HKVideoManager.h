@@ -19,8 +19,9 @@ typedef enum
 @property (nonatomic, assign, readonly) int nPort;
 @property (nonatomic, assign) void *hWnd;
 @property (nonatomic, assign) BOOL bSound;
+@property (nonatomic, assign) BOOL PlayStatus;
 
-- (instancetype)initWithHWnd:(void *)hWnd;
+- (instancetype)initWithHwnd:(void *)hWnd;
 
 - (BOOL)playStreamData:(NSData *)streamData dataType:(NSInteger)dataType length:(uint)length;
 
