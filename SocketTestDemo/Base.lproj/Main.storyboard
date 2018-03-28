@@ -69,44 +69,36 @@
                                             <action selector="loginAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="WLk-zh-d3R"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oJP-c2-Qd1">
+                                        <rect key="frame" x="244" y="291" width="123" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="获取流服务器地址"/>
+                                        <connections>
+                                            <action selector="getStreamIP:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ORh-vc-bcS"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="m6w-9c-ZFn">
+                                        <rect key="frame" x="10" y="349" width="140" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="开始预览"/>
+                                        <connections>
+                                            <action selector="startPreview:" destination="BYZ-38-t0r" eventType="touchUpInside" id="1Qq-ST-LGN"/>
+                                        </connections>
+                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Skt-P4-G2a">
-                                        <rect key="frame" x="126" y="291" width="117" height="30"/>
+                                        <rect key="frame" x="119" y="291" width="117" height="30"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <state key="normal" title="查询设备信息"/>
                                         <connections>
                                             <action selector="getDeviceInfoAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="1A9-rg-ZQg"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oJP-c2-Qd1">
-                                        <rect key="frame" x="259" y="291" width="76" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="开始预览"/>
-                                        <connections>
-                                            <action selector="startPreview:" destination="BYZ-38-t0r" eventType="touchUpInside" id="eeE-9p-1mb"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="T8d-MM-PwK">
-                                        <rect key="frame" x="10" y="336" width="115" height="30"/>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wAt-GH-BBM">
+                                        <rect key="frame" x="196" y="349" width="171" height="30"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <state key="normal" title="停止预览"/>
                                         <connections>
-                                            <action selector="stopPreview:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Yz6-7z-lOJ"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wAt-GH-BBM">
-                                        <rect key="frame" x="10" y="387" width="171" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="停止接收预览视频流2"/>
-                                        <connections>
-                                            <action selector="stopGetPreviewVideoStream:" destination="BYZ-38-t0r" eventType="touchUpInside" id="heJ-Va-VOd"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="m6w-9c-ZFn">
-                                        <rect key="frame" x="147" y="336" width="188" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="获取预览视频流2"/>
-                                        <connections>
-                                            <action selector="getPreviewStream:" destination="BYZ-38-t0r" eventType="touchUpInside" id="R3L-qi-BIm"/>
+                                            <action selector="stopPreview:" destination="BYZ-38-t0r" eventType="touchUpInside" id="nhh-89-tfy"/>
                                         </connections>
                                     </button>
                                 </subviews>

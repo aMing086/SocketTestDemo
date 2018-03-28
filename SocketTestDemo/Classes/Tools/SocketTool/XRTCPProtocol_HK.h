@@ -158,27 +158,29 @@ extern NSString * const TYPE_ARRAY;
 
 @end
 
-// 开始预览 videoCmd = 0x10 中心
-@interface XRTCPProtocol_VideoStartPreview : XRTCPProtocol_Video
+// 获取流服务器地址 videoCmd = 0x10 中心
+@interface XRTCPProtocol_VideoGetStreamIP : XRTCPProtocol_Video
 
 @property (nonatomic, strong) NSString *deviceID; // 设备ID
 @property (nonatomic, assign) uint channelNo; // 通道号
-@property (nonatomic, assign) uint8_t streamType; // 流类型 0-主码流 1-子码流
+//@property (nonatomic, assign) uint8_t streamType; // 流类型 0-主码流 1-子码流
+@property (nonatomic, assign) uint8_t workType; // 业务类型 1-预览 2-回放
 
 @end
 
-// 开始预览应答 videoCmd = 0x10 中心
-@interface XRTCPProtocol_VideoStartPreviewAck : XRTCPProtocol_Video
+// 获取流服务器地址 videoCmd = 0x10 中心
+@interface XRTCPProtocol_VideoGetStreamIPAck : XRTCPProtocol_Video
 
 @property (nonatomic, assign) uint respSeqNo; // 应答序列号
 @property (nonatomic, strong) NSString *deviceID; // 设备ID
 @property (nonatomic, assign) uint channelNo; // 通道号
-@property (nonatomic, assign) uint sessionID; // 会话ID
+//@property (nonatomic, assign) uint sessionID; // 会话ID
 @property (nonatomic, strong) NSString *streamIP; // 流服务器IP
 @property (nonatomic, assign) ushort streamPort; // 流服务器端口
 
 @end
 
+/*
 // 停止预览 videoCmd = 0x11 中心
 @interface XRTCPProtocol_VideoStopPreview : XRTCPProtocol_Video
 
@@ -194,21 +196,24 @@ extern NSString * const TYPE_ARRAY;
 @property (nonatomic, assign) uint respSeqNo; // 应答序列号
 
 @end
+*/
 
-// 获取预览视频流 0x12 (流服务器)
-@interface XRTCPProtocol_VideoGetPreviewStream : XRTCPProtocol_Video
+// 开始预览 0x12 (流服务器)
+@interface XRTCPProtocol_VideoStartPreview : XRTCPProtocol_Video
 
 @property (nonatomic, strong) NSString *clientGUID; // 客户端GUID
 @property (nonatomic, strong) NSString *deviceID; // 设备ID
 @property (nonatomic, assign) uint channelNo; // 通道号
-@property (nonatomic, assign) uint sessionID; // 会话ID
+//@property (nonatomic, assign) uint sessionID; // 会话ID
+@property (nonatomic, assign) uint8_t streamType; // 流类型 0-主码流 1-子码流
 
 @end
 
-// 获取预览视频流应答 0x12 (流服务器)
-@interface XRTCPProtocol_VideoGetPreviewStreamAck : XRTCPProtocol_Video
+// 开始预览应答 0x12 (流服务器)
+@interface XRTCPProtocol_VideoStartPreviewAck : XRTCPProtocol_Video
 
 @property (nonatomic, assign) uint respSeqNo; // 应答序列号
+@property (nonatomic, assign) uint sessionID; // 会话ID
 
 @end
 
@@ -224,12 +229,19 @@ extern NSString * const TYPE_ARRAY;
 
 @end
 
-// 停止接收预览视频流 0x14 (流服务器)
-@interface XRTCPProtocol_VideoStopPreviewStream : XRTCPProtocol_Video
+// 停止预览 0x14 (流服务器)
+@interface XRTCPProtocol_VideoStopPreview : XRTCPProtocol_Video
 
 @property (nonatomic, strong) NSString *clientGUID; // 客户端GUID
 @property (nonatomic, strong) NSString *deviceID; // 设备ID
 @property (nonatomic, assign) uint channelNo; // 通道号
 @property (nonatomic, assign) uint sessionID; // 会话ID
+
+@end
+
+// 停止预览应答 0x14 (流服务器)
+@interface XRTCPProtocol_VideoStopPreviewAck : XRTCPProtocol_Video
+
+@property (nonatomic, assign) uint respSeqNo; // 应答序列号
 
 @end

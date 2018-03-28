@@ -16,14 +16,15 @@
     XRTCPProtocol_Video *video;
     XRTCPProtocol_VideoChannelAck *videoChannelAck;
     XRTCPProtocol_VideoDeviceAck *deviceAck;
+    XRTCPProtocol_VideoGetStreamIPAck *getStreamIPAck;
     XRTCPProtocol_VideoStartPreviewAck *startPreviewAck;
-    XRTCPProtocol_VideoStopPreviewAck *stopPreviewAck;
-    XRTCPProtocol_VideoGetPreviewStreamAck *getPreviewStreamAck;
     XRTCPProtocol_VideoPreviewStream *previewStream;
-    NSMutableData *_videoData;
+    XRTCPProtocol_VideoStopPreviewAck *stopPreviewAck;
+    NSMutableArray *_videoDataArray;
     NSMutableDictionary *_videoDic;
     NSInteger  _index;
     BOOL _isPlay;
+    BOOL _isStream;
 }
 
 @property (nonatomic, assign) BOOL connected;
@@ -46,7 +47,7 @@
 - (GCDAsyncSocket *)clientSocket
 {
     if (!_clientSocket) {
-        _clientSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_global_queue(0, 0)];
+        _clientSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
     }
     return _clientSocket;
 }
@@ -54,7 +55,7 @@
 - (GCDAsyncSocket *)clientSocket_two
 {
     if (!_clientSocket_two) {
-        _clientSocket_two = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_global_queue(0, 0)];
+        _clientSocket_two = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
     }
     return _clientSocket_two;
 }
@@ -67,19 +68,19 @@
     return _videoManager;
 }
 
-//- (void)setLogStr:(NSMutableString *)logStr
-//{
-//    _logStr = logStr;
-//    self.textView.text = logStr;
-//}
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    self.logStr = [NSMutableString string];
+    [self appendLogStr:@"Log:\n"];
+    _videoDataArray = [NSMutableArray array];
     
-    self.logStr = [NSMutableString stringWithString:@"Log:\n"];
-    _videoData = [NSMutableData data];
-    
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [self stopPreview:nil];
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
@@ -127,8 +128,8 @@
 // 添加操作日志
 - (void)appendLogStr:(NSString *)str
 {
-//    [self.logStr appendString:str];
-//    self.textView.text = self.logStr;
+    [self.logStr appendString:str];
+    self.textView.text = self.logStr;
 }
 
 #pragma mark -Action
@@ -160,7 +161,7 @@
     if (self.connected) {
         [self.clientSocket disconnect];
     } else {
-        BOOL flag = [self.clientSocket connectToHost:@"58.215.179.52" onPort:[self.portTextField.text intValue] error:nil];
+        BOOL flag = [self.clientSocket connectToHost:@"58.215.179.52" onPort:[self.portTextField.text intValue] withTimeout:5.0 error:nil];
         if (!flag) {
             NSLog(@"连接失败");
         }
@@ -195,57 +196,49 @@
     [self.clientSocket writeData:videoDeviceData withTimeout:-1 tag:videoDevice.ProtocolValue];
 }
 
+// 获取流服务器地址
+- (IBAction)getStreamIP:(UIButton *)sender {
+    XRTCPProtocol_VideoGetStreamIP *getStreamIP = [[XRTCPProtocol_VideoGetStreamIP alloc] init];
+    getStreamIP.deviceID = @"123456";
+    getStreamIP.channelNo = 4;
+    getStreamIP.workType = 1;
+    [self.clientSocket writeData:[getStreamIP encodePack] withTimeout:-1 tag:getStreamIP.ProtocolValue];
+}
+
 // 开始预览
 - (IBAction)startPreview:(UIButton *)sender {
-    XRTCPProtocol_VideoStartPreview *startPreview = [[XRTCPProtocol_VideoStartPreview alloc] init];
-    startPreview.deviceID = @"123456";
-    startPreview.channelNo = 4;
-    startPreview.streamType = 0;
-    [self.clientSocket writeData:[startPreview encodePack] withTimeout:-1 tag:startPreview.ProtocolValue];
-}
-
-// 停止预览
-- (IBAction)stopPreview:(UIButton *)sender {
-    XRTCPProtocol_VideoStopPreview *videoStopPreview = [[XRTCPProtocol_VideoStopPreview alloc] init];
-    videoStopPreview.deviceID = startPreviewAck.deviceID;
-    videoStopPreview.channelNo = startPreviewAck.channelNo;
-    videoStopPreview.sessionID = startPreviewAck.sessionID;
-    [self.clientSocket writeData:[videoStopPreview encodePack] withTimeout:-1 tag:videoStopPreview.ProtocolValue];
-}
-
-// 获取预览视频流
-- (IBAction)getPreviewStream:(UIButton *)sender {
     
     if (!_connectedTwo) {
-        BOOL flag = [self.clientSocket_two connectToHost:startPreviewAck.streamIP onPort:startPreviewAck.streamPort error:nil];
+        BOOL flag = [self.clientSocket_two connectToHost:getStreamIPAck.streamIP onPort:getStreamIPAck.streamPort withTimeout:5.0 error:nil];
     }
     
     if (_connectedTwo) {
-        XRTCPProtocol_VideoGetPreviewStream *videoGetPreviewStream = [[XRTCPProtocol_VideoGetPreviewStream alloc] init];
+        XRTCPProtocol_VideoStartPreview *videoGetPreviewStream = [[XRTCPProtocol_VideoStartPreview alloc] init];
         videoGetPreviewStream.clientGUID = @"GUID123456";
-        videoGetPreviewStream.deviceID = startPreviewAck.deviceID;
-        videoGetPreviewStream.channelNo = startPreviewAck.channelNo;
-        videoGetPreviewStream.sessionID = startPreviewAck.sessionID;
-        
+        videoGetPreviewStream.deviceID = getStreamIPAck.deviceID;
+        videoGetPreviewStream.channelNo = getStreamIPAck.channelNo;
+        videoGetPreviewStream.streamType = 0;
         [self.clientSocket_two writeData:[videoGetPreviewStream encodePack] withTimeout:-1 tag:2];
     }
     
 }
 
 // 停止接收预览视频流
-- (IBAction)stopGetPreviewVideoStream:(UIButton *)sender {
-    XRTCPProtocol_VideoStopPreviewStream *videoStopPreviewStream = [[XRTCPProtocol_VideoStopPreviewStream alloc] init];
-    videoStopPreviewStream.clientGUID = @"GUID123456";
-    videoStopPreviewStream.deviceID = startPreviewAck.deviceID;
-    videoStopPreviewStream.channelNo = startPreviewAck.channelNo;
-    videoStopPreviewStream.sessionID = startPreviewAck.sessionID;
-    [self.clientSocket_two writeData:[videoStopPreviewStream encodePack] withTimeout:-1 tag:2];
+- (IBAction)stopPreview:(UIButton *)sender {
+    XRTCPProtocol_VideoStopPreview *videoStopPreview = [[XRTCPProtocol_VideoStopPreview alloc] init];
+    videoStopPreview.clientGUID = @"GUID123456";
+    videoStopPreview.deviceID = getStreamIPAck.deviceID;
+    videoStopPreview.channelNo = getStreamIPAck.channelNo;
+    videoStopPreview.sessionID = startPreviewAck.sessionID;
+    [self.clientSocket_two writeData:[videoStopPreview encodePack] withTimeout:-1 tag:2];
 }
 
 #pragma mark -GCDAsyncSocketDelegate
 - (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port
 {
-    [self appendLogStr:[NSString stringWithFormat:@"连接成功，服务器IP：%@， 端口号：%hu\n", host, port]];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self appendLogStr:[NSString stringWithFormat:@"连接成功，服务器IP：%@， 端口号：%hu\n", host, port]];
+    });
     if (port == 8002) {
         // 连接成功开启定时器
         [self addTimerTwo];
@@ -254,36 +247,36 @@
         self.connectedTwo = YES;
     }
     // 连接成功开启定时器
-    [self addTimer];
+//    [self addTimer];
     // 连接后，可读取服务器端的数据
-    [self.clientSocket readDataWithTimeout:-1 tag:1];
+    [sock readDataWithTimeout:-1 tag:1];
     self.connected = YES;
 }
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
-//    dispatch_queue_t queue = dispatch_queue_create("de", NULL);
-//    dispatch_async(queue, ^{
-    
-        // 处理从服务器端获取到的数据
+    // 处理从服务器端获取到的数据
     if (!basic) {
         basic = [[XRTCPProtocol_Basic alloc] init];
     }
-        BOOL flag = [basic decodePackWithData:data length:(int)[data length]];
-        
-        //    XRTCPProtocol_Basic *basic;
-        //    BOOL flag;
+    BOOL flag = [basic decodePackWithData:data length:(int)[data length]];
+    if (flag) {
         if (basic.ProtocolValue == 0x05) {
             flag = [[[XRTCPProtocol_Contact alloc] init] decodePackWithData:data length:(int)[data length]];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self appendLogStr:[NSString stringWithFormat:@"Protocol：%d decode:%d ResCode：%d\n", basic.ProtocolValue, flag, basic.ResCode]];
+            });
         } else if (basic.ProtocolValue == 0x35) {
             flag = [[[XRTCPProtocol_LoginAck alloc] init] decodePackWithData:data length:(int)[data length]];
-            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self appendLogStr:[NSString stringWithFormat:@"Protocol：%d decode:%d ResCode：%d\n", basic.ProtocolValue, flag, basic.ResCode]];
+            });
         } else if (basic.ProtocolValue == 0x40) {
             if (!video) {
-               video = [[XRTCPProtocol_Video alloc] init];
+                video = [[XRTCPProtocol_Video alloc] init];
             }
             flag = [video decodePackWithData:data length:(int)[data length]];
-            
+    
             switch (video.videoCmd) {
                 case 0x01:
                 {
@@ -299,31 +292,55 @@
                 }
                 case 0x10:
                 {
-                    startPreviewAck = [[XRTCPProtocol_VideoStartPreviewAck alloc] init];
-                    flag = [startPreviewAck decodePackWithData:data length:(int)data.length];
+                    getStreamIPAck = [[XRTCPProtocol_VideoGetStreamIPAck alloc] init];
+                    flag = [getStreamIPAck decodePackWithData:data length:(int)data.length];
                     break;
                 }
-                case 0x11:
-                {
-                    stopPreviewAck = [[XRTCPProtocol_VideoStopPreviewAck alloc] init];
-                    flag = [stopPreviewAck decodePackWithData:data length:(int)data.length];
-                    break;
-                }
+                    
                 case 0x12:
                 {
-                    getPreviewStreamAck = [[XRTCPProtocol_VideoGetPreviewStreamAck alloc] init];
-                    flag = [getPreviewStreamAck decodePackWithData:data length:(int)data.length];
+                    startPreviewAck = [[XRTCPProtocol_VideoStartPreviewAck alloc] init];
+                    flag = [startPreviewAck decodePackWithData:data length:(int)data.length];
+                    [_videoDataArray removeAllObjects];
+                    _isStream = NO;
                     break;
                 }
                 case 0x13:
                 {
-                    previewStream = [[XRTCPProtocol_VideoPreviewStream alloc] init];
-                    flag = [previewStream decodePackWithData:data length:(int)data.length];
-                    video = previewStream;
-                    [_videoData appendData:data];
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self.videoManager playStreamData:previewStream.videoData dataType:previewStream.dataType  length:[previewStream.videoData length]];
-                        });
+                    [_videoDataArray addObject:data];
+                    dispatch_queue_t queue = dispatch_queue_create("com.video", DISPATCH_QUEUE_CONCURRENT);
+                    dispatch_async(queue, ^{
+                        XRTCPProtocol_VideoPreviewStream *tempPreviewStream = [[XRTCPProtocol_VideoPreviewStream alloc] init];
+                        BOOL f = [tempPreviewStream decodePackWithData:data length:(int)data.length];
+                        if (f) {
+                            [self.videoManager playStreamData:tempPreviewStream.videoData dataType:tempPreviewStream.dataType  length:[tempPreviewStream.videoData length]];
+                        }
+                    });
+//                    if (!_isStream) {
+//                        _isStream = YES;
+//                        dispatch_queue_t queue = dispatch_queue_create("com.video", NULL);
+//                        dispatch_async(dispatch_get_main_queue(), ^{
+//                            if (_videoDataArray.count == 0) {
+//                                _isStream = NO;
+//                                return ;
+//                            }
+//                            for (int i = 0; i < _videoDataArray.count; i++) {
+//                                NSData *tempData = _videoDataArray.firstObject;
+//                                XRTCPProtocol_VideoPreviewStream *tempPreviewStream = [[XRTCPProtocol_VideoPreviewStream alloc] init];
+//                                BOOL f = [tempPreviewStream decodePackWithData:tempData length:(int)tempData.length];
+//                                if (f) {
+//                                    [self.videoManager playStreamData:tempPreviewStream.videoData dataType:tempPreviewStream.dataType  length:[tempPreviewStream.videoData length]];
+//                                }
+//                                [_videoDataArray removeObjectAtIndex:0];
+//                                i = 0;
+//                            }
+//                            if (_videoDataArray.count == 0) {
+//                                _isStream = NO;
+//                                return ;
+//                            }
+//                        });
+//                    }
+                    
                     /*
                      if (flag) {
                      NSThread *thread = [NSThread currentThread];
@@ -349,15 +366,27 @@
                     
                     break;
                 }
+                case 14:
+                {
+                    stopPreviewAck = [[XRTCPProtocol_VideoStopPreviewAck alloc] init];
+                    flag = [stopPreviewAck decodePackWithData:data length:[data length]];
+                    break;
+                }
                     
                 default:
                     break;
             }
+            
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//                [self appendLogStr:[NSString stringWithFormat:@"Protocol：%d_%d decode:%d ResCode：%d\n", video.ProtocolValue, video.videoCmd, flag, basic.ResCode]];
+//            });
         }
-        if (!flag) {
-            NSLog(@"0");
-        }
-//    });
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self appendLogStr:[NSString stringWithFormat:@"解析失败！\n"]];
+        });
+    }
+    
    
     // 读取到服务器端数据后，继续读取
     [sock readDataWithTimeout:-1 tag:0];
@@ -394,9 +423,13 @@
 //    }
     if (!err) {
         self.connected = NO;
-        [self appendLogStr:@"断开连接\n"];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self appendLogStr:@"断开连接\n"];
+        });
     } else {
-        [self appendLogStr:[NSString stringWithFormat:@"%@\n",[err description]]];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self appendLogStr:[NSString stringWithFormat:@"%@\n",[err description]]];
+        });
     }
 }
 
