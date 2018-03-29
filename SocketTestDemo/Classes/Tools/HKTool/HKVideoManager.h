@@ -12,19 +12,25 @@ typedef enum
 {
     HKVideoImageTypeJPEG, // JPEG
     HKVideoImageTypeBMP, // BMP
+    HKVideoImageTypeBMPEx, // 带有私有信息BMP
 }HKVideoImageType;
 
 @interface HKVideoManager : NSObject
 
-@property (nonatomic, assign, readonly) int nPort;
 @property (nonatomic, assign) void *hWnd;
-@property (nonatomic, assign) BOOL bSound;
-@property (nonatomic, assign) BOOL PlayStatus;
+@property (nonatomic, assign, readonly) int nPort;
+@property (nonatomic, assign, readonly) BOOL soundStatus;
+@property (nonatomic, assign, readonly) BOOL PlayStatus;
 
 - (instancetype)initWithHwnd:(void *)hWnd;
 
 - (BOOL)playStreamData:(NSData *)streamData dataType:(NSInteger)dataType length:(uint)length;
 
-- (void)stopPlay;
+- (void)stopPlayStream;
+
+- (void)playSound;
+
+// 抓图
+- (NSData *)screenshotsWithImageType:(HKVideoImageType)imageType;
 
 @end

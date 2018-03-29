@@ -261,7 +261,7 @@
     videoStopPreview.sessionID = startPreviewAck.sessionID;
     [self.clientSocket_two writeData:[videoStopPreview encodePack] withTimeout:-1 tag:2];
     
-    [self.videoManager stopPlay];
+    [self.videoManager stopPlayStream];
 }
 
 #pragma mark -GCDAsyncSocketDelegate
@@ -428,10 +428,11 @@
                 [_playData appendData:_videoData];
                 [_videoData replaceBytesInRange:NSMakeRange(0, _videoData.length) withBytes:NULL length:0];
             }
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self appendLogStr:[NSString stringWithFormat:@"解析失败！\n"]];
+            });
         }
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self appendLogStr:[NSString stringWithFormat:@"解析失败！\n"]];
-        });
     }
     
    

@@ -7,10 +7,10 @@
 //
 
 #import "SocketTool.h"
+#import "XRTCPProtocol_HK.h"
 
 @interface SocketTool ()<GCDAsyncSocketDelegate>
 
-@property (nonatomic, assign) BOOL connected;
 @property (nonatomic, strong) NSTimer *connectTimer;
 
 @end
@@ -27,25 +27,26 @@
 }
 
 // 向服务器发送信息
-- (void)sendMessageAction
+- (void)sendMessageWithData:(NSData *)data
 {
-    NSString *text = @"测试发给服务端的文本";
-    NSData *data = [text dataUsingEncoding:NSUTF8StringEncoding];
     [self.clientSocket writeData:data withTimeout:-1 tag:0];
 }
 
-- (void)addTimer
+// 定时器维持链接
+- (void)addConnectTimer
 {
     // 长连接定时器
-    self.connectTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(longConnectToSocket) userInfo:nil repeats:YES];
+    self.connectTimer = [NSTimer scheduledTimerWithTimeInterval:30.0 target:self selector:@selector(longConnectToSocket) userInfo:nil repeats:YES];
     // 把定时器添加到当前RunLoop中共，并调为通用模式
     [[NSRunLoop currentRunLoop] addTimer:self.connectTimer forMode:NSRunLoopCommonModes];
 }
 
 - (void)longConnectToSocket
 {
+    XRTCPProtocol_Contact *contact = [[XRTCPProtocol_Contact alloc] init];
+    NSData *data = [contact encodePack];
     // 发送固定格式的数据，指令@“longConnect”
-    [self.clientSocket writeData:[NSData data] withTimeout:-1 tag:0];
+    [self.clientSocket writeData:data withTimeout:-1 tag:contact.ProtocolValue];
 }
 
 #pragma mark -GCDAsyncSocketDelegate
@@ -53,10 +54,10 @@
 {
     NSLog(@"连接成功，服务器IP：%@， 端口号：%@", host, port);
     // 连接成功开启定时器
-    [self addTimer];
+    [self addConnectTimer];
     // 连接后，可读取服务器端的数据
     [self.clientSocket readDataWithTimeout:-1 tag:0];
-    self.connected = YES;
+    _isConnected = YES;
 }
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
@@ -67,5 +68,9 @@
     [self.clientSocket readDataWithTimeout:-1 tag:0];
 }
 
+- (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
+{
+    _isConnected = NO;
+}
 
 @end

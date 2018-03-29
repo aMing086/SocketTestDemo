@@ -9,6 +9,12 @@
 #import "HKVideoManager.h"
 #import "MobilePlaySDKInterface.h"
 
+@interface HKVideoManager()
+{
+    BOOL _bSound;
+}
+@end
+
 @implementation HKVideoManager
 
 - (instancetype)initWithHwnd:(void *)hWnd
@@ -16,7 +22,7 @@
     self = [super init];
     if (self) {
         self.hWnd = hWnd;
-        
+        _bSound = YES;
     }
     
     return self;
@@ -24,31 +30,46 @@
 
 - (BOOL)playStreamData:(NSData *)streamData dataType:(NSInteger)dataType length:(uint)length
 {
+    if (streamData == nil) {
+        return NO;
+    }
     if (1 == dataType) {
         // 获取播放库端口号
         if (!PlayM4_GetPort(&_nPort)) {
-            [self stopPlay];
+            [self stopPlayStream];
             return NO;
         }
         // 设置流模式
         if (!PlayM4_SetStreamOpenMode(_nPort, STREAME_REALTIME)) {
-            [self stopPlay];
+            [self stopPlayStream];
             return NO;
         }
         // 先打开流头文件
         if (!PlayM4_OpenStream(_nPort, (Byte *)[streamData bytes], length, 2 * 1024 * 1024/*设置缓冲区*/)) {
-            [self stopPlay];
+            [self stopPlayStream];
             return NO;
         }
-        self.PlayStatus = YES;
+        _PlayStatus = YES;
         // 开始解码播放
         if (!PlayM4_Play(_nPort, _hWnd))
         {
-            [self stopPlay];
+            [self stopPlayStream];
             return NO;
         }
     } else if (self.PlayStatus){
-    
+        if (_bSound) {
+            if (!_soundStatus) {
+                if (PlayM4_PlaySoundShare(_nPort)) {
+                    _soundStatus = YES;
+                }
+            }
+        } else {
+            if (_soundStatus) {
+                if (PlayM4_StopSoundShare(_nPort)) {
+                    _soundStatus = NO;
+                }
+            }
+        }
         int time = 1000;
         while (time > 0) {
             // 播放数据流
@@ -66,23 +87,73 @@
 }
 
 // 停止播放
-- (void)stopPlay
+- (void)stopPlayStream
 {
-    PlayM4_Stop(_nPort);
-    PlayM4_StopSoundShare(_nPort);
-    PlayM4_CloseStream(_nPort);
-    PlayM4_FreePort(_nPort);
-    self.PlayStatus = NO;
+    if (!PlayM4_Stop(_nPort)) {
+        
+    }
+    _PlayStatus = NO;
+    if (!PlayM4_StopSoundShare(_nPort)) {
+        
+    }
+    _soundStatus = NO;
+    if (!PlayM4_CloseStream(_nPort)) {
+        
+    }
+    if (!PlayM4_FreePort(_nPort)) 
+    _nPort = -1;
 }
 
 // 抓图
-- (void)screenshotsWithImageType:(HKVideoImageType)imageType
+- (NSData *)screenshotsWithImageType:(HKVideoImageType)imageType
 {
-    if (imageType == HKVideoImageTypeBMP) {
-        
-    } else {
-        
+    if (!_PlayStatus) {
+        return nil;
     }
+    switch (imageType) {
+        case HKVideoImageTypeBMP:
+        {
+            int BufSize = 1024 * 1024 * 3/2;
+            char *imageBuf = (char *)malloc(BufSize);
+            int pSize = 0;
+            if (!PlayM4_GetBMP(_nPort, imageBuf, BufSize, pSize)) {
+                NSData *imageData = [NSData dataWithBytes:imageBuf length:pSize];
+                return imageData;
+            }
+            return nil;
+            break;
+        }
+        case HKVideoImageTypeBMPEx:
+        {
+            int BufSize = 1024 * 1024 * 3/2;
+            char *imageBuf = (char *)malloc(BufSize);
+            int pSize = 0;
+            if (!PlayM4_GetBMPEx(_nPort,imageBuf , BufSize, &pSize)) {
+                NSData *imageData = [NSData dataWithBytes:imageBuf length:pSize];
+                return imageData;
+            }
+            return nil;
+            break;
+        }
+            
+        default:
+        {
+            int BufSize = 1024 * 1024 * 3/2;
+            char *imageBuf = (char *)malloc(BufSize);
+            int pSize = 0;
+            if (!PlayM4_GetJPEG(_nPort,imageBuf , BufSize, &pSize)) {
+                NSData *imageData = [NSData dataWithBytes:imageBuf length:pSize];
+                return imageData;
+            }
+            return nil;
+            break;
+        }
+    }
+}
+
+- (void)playSound:(BOOL)flag
+{
+    _bSound = flag;
 }
 
 @end

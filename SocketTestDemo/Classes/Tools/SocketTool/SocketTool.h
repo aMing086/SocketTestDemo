@@ -13,5 +13,7 @@
 
 // 客户端socket
 @property (nonatomic, strong) GCDAsyncSocket *clientSocket;
+// 链接状态
+@property (nonatomic, assign, readonly) BOOL isConnected;
 
 @end
