@@ -9,6 +9,7 @@
 #import "ViewController.h"
 #import "XRTCPProtocol_HK.h"
 #import "HKVideoManager.h"
+#import "XRVideoDataTool.h"
 
 @interface ViewController ()<GCDAsyncSocketDelegate>
 {
@@ -20,9 +21,11 @@
     XRTCPProtocol_VideoStartPreviewAck *startPreviewAck;
     XRTCPProtocol_VideoPreviewStream *previewStream;
     XRTCPProtocol_VideoStopPreviewAck *stopPreviewAck;
-    NSMutableArray *_videoDataArray;
+    NSMutableData *_videoData;
+    NSMutableData *_playData;
     NSMutableDictionary *_videoDic;
     NSInteger  _index;
+    BOOL _isEmpty;
     BOOL _isPlay;
     BOOL _isStream;
 }
@@ -73,8 +76,34 @@
     [super viewDidLoad];
     self.logStr = [NSMutableString string];
     [self appendLogStr:@"Log:\n"];
-    _videoDataArray = [NSMutableArray array];
-    
+    _videoData = [NSMutableData data];
+    _playData = [NSMutableData data];
+    dispatch_queue_t queue = dispatch_queue_create("com.video", DISPATCH_QUEUE_CONCURRENT);
+    dispatch_async(queue, ^{
+        while (1) {
+            if (_playData.length == 0) {
+                _isEmpty = YES;
+                [NSThread sleepForTimeInterval:0.1];
+                continue;
+            }
+            @synchronized(self) {
+                XRTCPProtocol_VideoPreviewStream *tempPreviewStream = [XRVideoDataTool decodePreViewStreamFromData:_playData];
+                if (tempPreviewStream == nil) {
+                    _isEmpty = YES;
+                    [NSThread sleepForTimeInterval:0.1];
+                    continue;
+                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.videoManager playStreamData:tempPreviewStream.videoData dataType:tempPreviewStream.dataType  length:[tempPreviewStream.videoData length]];
+                    NSLog(@"%d", tempPreviewStream.dataType);
+                });
+
+            }
+            
+            
+        }
+        
+    });
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -231,6 +260,8 @@
     videoStopPreview.channelNo = getStreamIPAck.channelNo;
     videoStopPreview.sessionID = startPreviewAck.sessionID;
     [self.clientSocket_two writeData:[videoStopPreview encodePack] withTimeout:-1 tag:2];
+    
+    [self.videoManager stopPlay];
 }
 
 #pragma mark -GCDAsyncSocketDelegate
@@ -276,7 +307,7 @@
                 video = [[XRTCPProtocol_Video alloc] init];
             }
             flag = [video decodePackWithData:data length:(int)[data length]];
-    
+            
             switch (video.videoCmd) {
                 case 0x01:
                 {
@@ -301,45 +332,52 @@
                 {
                     startPreviewAck = [[XRTCPProtocol_VideoStartPreviewAck alloc] init];
                     flag = [startPreviewAck decodePackWithData:data length:(int)data.length];
-                    [_videoDataArray removeAllObjects];
+                    [_videoData replaceBytesInRange:NSMakeRange(0, _videoData.length) withBytes:NULL length:0];
+                    [_playData replaceBytesInRange:NSMakeRange(0, _playData.length) withBytes:NULL length:0];
                     _isStream = NO;
+                    _isPlay = YES;
                     break;
                 }
                 case 0x13:
                 {
-                    [_videoDataArray addObject:data];
-                    dispatch_queue_t queue = dispatch_queue_create("com.video", DISPATCH_QUEUE_CONCURRENT);
-                    dispatch_async(queue, ^{
-                        XRTCPProtocol_VideoPreviewStream *tempPreviewStream = [[XRTCPProtocol_VideoPreviewStream alloc] init];
-                        BOOL f = [tempPreviewStream decodePackWithData:data length:(int)data.length];
-                        if (f) {
-                            [self.videoManager playStreamData:tempPreviewStream.videoData dataType:tempPreviewStream.dataType  length:[tempPreviewStream.videoData length]];
-                        }
-                    });
-//                    if (!_isStream) {
-//                        _isStream = YES;
-//                        dispatch_queue_t queue = dispatch_queue_create("com.video", NULL);
-//                        dispatch_async(dispatch_get_main_queue(), ^{
-//                            if (_videoDataArray.count == 0) {
-//                                _isStream = NO;
-//                                return ;
-//                            }
-//                            for (int i = 0; i < _videoDataArray.count; i++) {
-//                                NSData *tempData = _videoDataArray.firstObject;
-//                                XRTCPProtocol_VideoPreviewStream *tempPreviewStream = [[XRTCPProtocol_VideoPreviewStream alloc] init];
-//                                BOOL f = [tempPreviewStream decodePackWithData:tempData length:(int)tempData.length];
-//                                if (f) {
-//                                    [self.videoManager playStreamData:tempPreviewStream.videoData dataType:tempPreviewStream.dataType  length:[tempPreviewStream.videoData length]];
-//                                }
-//                                [_videoDataArray removeObjectAtIndex:0];
-//                                i = 0;
-//                            }
-//                            if (_videoDataArray.count == 0) {
-//                                _isStream = NO;
-//                                return ;
-//                            }
-//                        });
-//                    }
+                    [_videoData appendData:data];
+                    if (_isEmpty) {
+                        _isEmpty = NO;
+                        [_playData appendData:_videoData];
+                        [_videoData replaceBytesInRange:NSMakeRange(0, _videoData.length) withBytes:NULL length:0];
+                    }
+                    //                    dispatch_queue_t queue = dispatch_queue_create("com.video", DISPATCH_QUEUE_CONCURRENT);
+                    //                    dispatch_async(queue, ^{
+                    //                        XRTCPProtocol_VideoPreviewStream *tempPreviewStream = [[XRTCPProtocol_VideoPreviewStream alloc] init];
+                    //                        BOOL f = [tempPreviewStream decodePackWithData:data length:(int)data.length];
+                    //                        if (f) {
+                    //                            [self.videoManager playStreamData:tempPreviewStream.videoData dataType:tempPreviewStream.dataType  length:[tempPreviewStream.videoData length]];
+                    //                        }
+                    //                    });
+                    //                    if (!_isStream) {
+                    //                        _isStream = YES;
+                    //                        dispatch_queue_t queue = dispatch_queue_create("com.video", NULL);
+                    //                        dispatch_async(dispatch_get_main_queue(), ^{
+                    //                            if (_videoDataArray.count == 0) {
+                    //                                _isStream = NO;
+                    //                                return ;
+                    //                            }
+                    //                            for (int i = 0; i < _videoDataArray.count; i++) {
+                    //                                NSData *tempData = _videoDataArray.firstObject;
+                    //                                XRTCPProtocol_VideoPreviewStream *tempPreviewStream = [[XRTCPProtocol_VideoPreviewStream alloc] init];
+                    //                                BOOL f = [tempPreviewStream decodePackWithData:tempData length:(int)tempData.length];
+                    //                                if (f) {
+                    //                                    [self.videoManager playStreamData:tempPreviewStream.videoData dataType:tempPreviewStream.dataType  length:[tempPreviewStream.videoData length]];
+                    //                                }
+                    //                                [_videoDataArray removeObjectAtIndex:0];
+                    //                                i = 0;
+                    //                            }
+                    //                            if (_videoDataArray.count == 0) {
+                    //                                _isStream = NO;
+                    //                                return ;
+                    //                            }
+                    //                        });
+                    //                    }
                     
                     /*
                      if (flag) {
@@ -368,6 +406,7 @@
                 }
                 case 14:
                 {
+                    _isPlay = NO;
                     stopPreviewAck = [[XRTCPProtocol_VideoStopPreviewAck alloc] init];
                     flag = [stopPreviewAck decodePackWithData:data length:[data length]];
                     break;
@@ -377,11 +416,19 @@
                     break;
             }
             
-//            dispatch_async(dispatch_get_main_queue(), ^{
-//                [self appendLogStr:[NSString stringWithFormat:@"Protocol：%d_%d decode:%d ResCode：%d\n", video.ProtocolValue, video.videoCmd, flag, basic.ResCode]];
-//            });
+            //            dispatch_async(dispatch_get_main_queue(), ^{
+            //                [self appendLogStr:[NSString stringWithFormat:@"Protocol：%d_%d decode:%d ResCode：%d\n", video.ProtocolValue, video.videoCmd, flag, basic.ResCode]];
+            //            });
         }
     } else {
+        if (_isPlay) {
+            [_videoData appendData:data];
+            if (_isEmpty) {
+                _isEmpty = NO;
+                [_playData appendData:_videoData];
+                [_videoData replaceBytesInRange:NSMakeRange(0, _videoData.length) withBytes:NULL length:0];
+            }
+        }
         dispatch_async(dispatch_get_main_queue(), ^{
             [self appendLogStr:[NSString stringWithFormat:@"解析失败！\n"]];
         });

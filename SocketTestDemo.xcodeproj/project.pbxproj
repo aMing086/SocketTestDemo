@@ -16,6 +16,7 @@
 		C02765212046559000CF7973 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C02765112046559000CF7973 /* AppDelegate.m */; };
 		C0276527204656AE00CF7973 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C0276525204656AE00CF7973 /* ViewController.m */; };
 		C027652B20469B2500CF7973 /* SocketTool.m in Sources */ = {isa = PBXBuildFile; fileRef = C027652A20469B2500CF7973 /* SocketTool.m */; };
+		C07A8463206C7D22001967FE /* XRVideoDataTool.m in Sources */ = {isa = PBXBuildFile; fileRef = C07A8462206C7D21001967FE /* XRVideoDataTool.m */; };
 		C0832D3F2051165000DC3851 /* XRTCPProtocol_HK.m in Sources */ = {isa = PBXBuildFile; fileRef = C0832D3E2051165000DC3851 /* XRTCPProtocol_HK.m */; };
 		C08D7E1320575BE600368548 /* HKVideoStream_log.txt in Resources */ = {isa = PBXBuildFile; fileRef = C08D7E1220575BE600368548 /* HKVideoStream_log.txt */; };
 		C0978DEE205916560092F531 /* HKVideoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C0978DED205916560092F531 /* HKVideoManager.m */; };
@@ -75,6 +76,8 @@
 		C0276526204656AE00CF7973 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		C027652920469B2500CF7973 /* SocketTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SocketTool.h; sourceTree = "<group>"; };
 		C027652A20469B2500CF7973 /* SocketTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SocketTool.m; sourceTree = "<group>"; };
+		C07A8461206C7D21001967FE /* XRVideoDataTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XRVideoDataTool.h; sourceTree = "<group>"; };
+		C07A8462206C7D21001967FE /* XRVideoDataTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XRVideoDataTool.m; sourceTree = "<group>"; };
 		C0832D3D2051165000DC3851 /* XRTCPProtocol_HK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XRTCPProtocol_HK.h; sourceTree = "<group>"; };
 		C0832D3E2051165000DC3851 /* XRTCPProtocol_HK.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XRTCPProtocol_HK.m; sourceTree = "<group>"; };
 		C08D7E1220575BE600368548 /* HKVideoStream_log.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HKVideoStream_log.txt; sourceTree = "<group>"; };
@@ -305,6 +308,7 @@
 		C027651F2046559000CF7973 /* Tools */ = {
 			isa = PBXGroup;
 			children = (
+				C07A8460206C7D11001967FE /* VideoDataTool */,
 				C0978DEB205913CB0092F531 /* HKTool */,
 				C0276528204699FB00CF7973 /* SocketTool */,
 			);
@@ -353,6 +357,15 @@
 				C0832D3E2051165000DC3851 /* XRTCPProtocol_HK.m */,
 			);
 			path = SocketTool;
+			sourceTree = "<group>";
+		};
+		C07A8460206C7D11001967FE /* VideoDataTool */ = {
+			isa = PBXGroup;
+			children = (
+				C07A8461206C7D21001967FE /* XRVideoDataTool.h */,
+				C07A8462206C7D21001967FE /* XRVideoDataTool.m */,
+			);
+			path = VideoDataTool;
 			sourceTree = "<group>";
 		};
 		C0978DEB205913CB0092F531 /* HKTool */ = {
@@ -588,6 +601,7 @@
 				C0276527204656AE00CF7973 /* ViewController.m in Sources */,
 				C02765212046559000CF7973 /* AppDelegate.m in Sources */,
 				C027652B20469B2500CF7973 /* SocketTool.m in Sources */,
+				C07A8463206C7D22001967FE /* XRVideoDataTool.m in Sources */,
 				C09CBB7D205671B700651B84 /* YMSocketUtils.m in Sources */,
 				C02764EC2046555F00CF7973 /* main.m in Sources */,
 			);
