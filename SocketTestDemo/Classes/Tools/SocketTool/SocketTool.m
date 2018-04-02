@@ -17,13 +17,28 @@
 
 @implementation SocketTool
 
-- (instancetype)init
+- (instancetype)initWithHost:(NSString *)host port:(uint16_t)port timeOut:(NSInteger)timeOut
 {
     self = [super init];
     if (self) {
-        self.clientSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
+        _host = host;
+        _port = port;
+        _timeOut = timeOut;
+        self.clientSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
+        [self connectedToHost];
     }
     return self;
+}
+
+- (BOOL)connectedToHost
+{
+    if (!_isConnected) {
+        NSError *error = nil;
+        if (![self.clientSocket connectToHost:_host onPort:_port withTimeout:_timeOut error:&error]) {
+            return NO;
+        }
+    }
+    return YES;
 }
 
 // 向服务器发送信息
@@ -52,7 +67,6 @@
 #pragma mark -GCDAsyncSocketDelegate
 - (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port
 {
-    NSLog(@"连接成功，服务器IP：%@， 端口号：%@", host, port);
     // 连接成功开启定时器
     [self addConnectTimer];
     // 连接后，可读取服务器端的数据
