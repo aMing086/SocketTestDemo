@@ -245,3 +245,163 @@ extern NSString * const TYPE_ARRAY;
 @property (nonatomic, assign) uint respSeqNo; // 应答序列号
 
 @end
+
+// 文件信息
+@interface XR_VideoFileInfo : NSObject
+
+@property (nonatomic, strong) NSString *fileName; // 文件名
+@property (nonatomic, assign) SYSTEMTIME startTime; // 开始时间
+@property (nonatomic, assign) SYSTEMTIME endTime; // 结束时间
+@property (nonatomic, assign) uint fileSize; // 文件大小
+@property (nonatomic, assign) uint fileMainType; // 文件主类型
+@property (nonatomic, assign) uint fileChildType; // 文件次类型
+@property (nonatomic, assign) uint fileIndex; // 文件索引
+@property (nonatomic, assign) Byte timeLagHour; // 时差小时 与UTC时差
+@property (nonatomic, assign) Byte timeLagMinute; // 时差分钟 与UTC时差
+
+@end
+
+// 查询录像文件（0x15）(中心)
+@interface XRTCPProtocol_VideoQueryFile : XRTCPProtocol_Video
+
+@property (nonatomic, strong) NSString *clientGUID; // 客户端GUID
+@property (nonatomic, strong) NSString *deviceID; // 设备ID
+@property (nonatomic, assign) uint channelNo; // 通道号
+@property (nonatomic, assign) uint videoType; // 录像类型：0xFF-全部 0-定时录像
+@property (nonatomic, assign) SYSTEMTIME startTime; // 开始时间
+@property (nonatomic, assign) SYSTEMTIME endTime; // 结束时间
+@property (nonatomic, assign) uint index; // 起始索引 从0开始
+@property (nonatomic, assign) uint OnceQueryNum; // 单次查询个数 建议最大个数 8
+@property (nonatomic, assign) Byte dateType; // 时间类型：0-北京时间 1-UTC 时间
+
+@end
+
+// 查询录像文件应答（0x15）(中心)
+@interface XRTCPProtocol_VideoQueryFileAck : XRTCPProtocol_Video
+
+@property (nonatomic, assign) uint respSeqNo; // 应答序列号
+@property (nonatomic, strong) NSString *deviceID; // 设备ID
+@property (nonatomic, assign) uint channelNo; // 通道号
+@property (nonatomic, assign) uint fileNum; // 文件数
+@property (nonatomic, strong) NSArray<XR_VideoFileInfo *> *fileInfos; // 文件信息数组
+
+@end
+
+// 开始回放 （0x16） (流服务器)
+@interface XRTCPProtocol_VideoStartPlayBack : XRTCPProtocol_Video
+
+@property (nonatomic, strong) NSString *clientGUID; // 客户端GUID
+@property (nonatomic, strong) NSString *deviceID; // 设备ID
+@property (nonatomic, assign) uint channelNo; // 通道号
+@property (nonatomic, assign) uint playBackType; // 回放模式 0-按文件名 1-按时间(暂不支持)
+@property (nonatomic, strong) NSString *fileName; // 回放文件名
+@property (nonatomic, assign) Byte calculationType; // 计算类型 0-按字节长度计算 1-按秒数计算
+@property (nonatomic, assign) uint fileOffset; // 文件偏移量 按字节或秒。
+@property (nonatomic, assign) uint fileSize; // 回放文件大小 0-回放到该文件结束，按字节或秒。
+@property (nonatomic, assign) SYSTEMTIME startTime; // 开始时间 按时间模式有效
+@property (nonatomic, assign) SYSTEMTIME endTime; // 结束时间 按时间模式有效
+
+@end
+
+// 开始回放应答 （0x16） (流服务器)
+@interface XRTCPProtocol_VideoStartPlayBackAck : XRTCPProtocol_Video
+
+@property (nonatomic, assign) uint respSeqNo; // 应答序列号
+@property (nonatomic, assign) uint sessionID; // 会话ID
+
+@end
+
+// 回放视频流 0x17（流服务器）
+@interface XRTCPProtocol_VideoPlayBackStream : XRTCPProtocol_Video
+
+@property (nonatomic, strong) NSString *deviceID; // 设备ID
+@property (nonatomic, assign) uint channelNo; // 通道号
+@property (nonatomic, assign) uint sessionID; // 会话ID
+@property (nonatomic, assign) uint8_t streamType; // 流类型 1-HK
+@property (nonatomic, assign) uint8_t dataType; // 数据类型 HK: 1-码流头 2-码流数据
+@property (nonatomic, strong) NSData *videoData; // 视频数据
+
+@end
+
+// 停止回放 0x18 (流服务器)
+@interface XRTCPProtocol_VideoStopPlayBack : XRTCPProtocol_Video
+
+@property (nonatomic, strong) NSString *clientGUID; // 客户端GUID
+@property (nonatomic, strong) NSString *deviceID; // 设备ID
+@property (nonatomic, assign) uint channelNo; // 通道号
+@property (nonatomic, assign) uint sessionID; // 会话ID
+
+@end
+
+// 停止回放应答 0x18 (流服务器)
+@interface XRTCPProtocol_VideoStopPlayBackAck : XRTCPProtocol_Video
+
+@property (nonatomic, assign) uint respSeqNo; // 应答序列号
+
+@end
+
+// 开始语音对讲 0x19 (流服务器)
+@interface XRTCPProtocol_VideoStartVoice : XRTCPProtocol_Video
+
+@property (nonatomic, strong) NSString *clientGUID; // 客户端GUID
+@property (nonatomic, strong) NSString *deviceID; // 设备ID
+@property (nonatomic, assign) uint voiceChannelNo; // 语音通道号
+
+@end
+
+// 开始语音对讲应答 0x19 (流服务器)
+@interface XRTCPProtocol_VideoStartVoiceAck : XRTCPProtocol_Video
+
+@property (nonatomic, assign) uint respSeqNo; // 应答序列号
+@property (nonatomic, assign) uint sessionID; // 会话ID
+
+@end
+
+// 对讲语音数据 0x20 (流服务器)
+@interface XRTCPProtocol_VideoVoiceData : XRTCPProtocol_Video
+
+@property (nonatomic, strong) NSString *deviceID; // 设备ID
+@property (nonatomic, assign) uint voiceChannelNo; // 语音通道号
+@property (nonatomic, assign) uint sessionID; // 会话ID
+@property (nonatomic, assign) uint8_t streamType; // 流类型 1-HK
+@property (nonatomic, assign) uint8_t dataType; // 数据类型 HK: 1-码流头 2-码流数据
+@property (nonatomic, strong) NSData *voiceData; // 语音数据
+
+@end
+
+// 下发语音数据 0x21 (流服务器)
+@interface XRTCPProtocol_VideoSendVoiceData : XRTCPProtocol_Video
+
+@property (nonatomic, strong) NSString *clientGUID; // 客户端GUID
+@property (nonatomic, strong) NSString *deviceID; // 设备ID
+@property (nonatomic, assign) uint voiceChannelNo; // 语音通道号
+@property (nonatomic, assign) uint sessionID; // 会话ID
+@property (nonatomic, assign) uint8_t streamType; // 流类型 1-HK
+@property (nonatomic, assign) uint8_t dataType; // 数据类型 HK: 1-码流头 2-码流数据
+@property (nonatomic, strong) NSData *voiceData; // 语音数据 最大语音长度限制在 60k
+
+@end
+
+// 下发语音数据应答 0x21 (流服务器)
+@interface XRTCPProtocol_VideoSendVoiceDataAck : XRTCPProtocol_Video
+
+@property (nonatomic, assign) uint respSeqNo; // 应答序列号
+
+@end
+
+// 停止语音对讲 0x22 (流服务器)
+@interface XRTCPProtocol_VideoStopVoice : XRTCPProtocol_Video
+
+@property (nonatomic, strong) NSString *clientGUID; // 客户端GUID
+@property (nonatomic, strong) NSString *deviceID; // 设备ID
+@property (nonatomic, assign) uint voiceChannelNo; // 语音通道号
+@property (nonatomic, assign) uint sessionID; // 会话ID
+
+@end
+
+// 停止语音对讲应答 0x22 (流服务器)
+@interface XRTCPProtocol_VideoStopVoiceAck : XRTCPProtocol_Video
+
+@property (nonatomic, assign) uint respSeqNo; // 应答序列号
+
+@end

@@ -816,6 +816,104 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
 
 @end
 
+@implementation XR_VideoFileInfo : NSObject
+
+@end
+
+// 查询录像文件（0x15）(中心)
+@implementation XRTCPProtocol_VideoQueryFile : XRTCPProtocol_Video
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.videoCmd = 0x15;
+    }
+    return self;
+}
+
+- (NSData *)encodeVideo
+{
+    NSMutableData *buf = [NSMutableData data];
+    NSData *clientGUIDData = [self.clientGUID dataUsingEncoding:GBKEncoding];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:[clientGUIDData length]]];
+    [buf appendData:clientGUIDData];
+    NSData *deviceIDData = [self.deviceID dataUsingEncoding:GBKEncoding];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:[deviceIDData length]]];
+    [buf appendData:deviceIDData];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.channelNo]];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.videoType]];
+#warning 开始时间、结束时间
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.index]];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.OnceQueryNum]];
+    [buf appendData:[YMSocketUtils byteFromUInt8:self.dateType]];
+    return buf;
+}
+
+@end
+
+// 查询录像文件应答（0x15）(中心)
+@implementation XRTCPProtocol_VideoQueryFileAck
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.videoCmd = 0x15;
+    }
+    return self;
+}
+
+- (BOOL)decodeVideoWithData:(NSData *)data
+{
+    if (data.length < 14) {
+        return NO;
+    }
+    int index = 0;
+    self.respSeqNo = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    index += 4;
+    ushort deviceIDLenght = [YMSocketUtils uint16FromBytes:[data subdataWithRange:NSMakeRange(index, 2)]];
+    if (data.length < 14 + deviceIDLenght) {
+        return NO;
+    }
+    index += 2;
+    self.deviceID = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(index, deviceIDLenght)] encoding:GBKEncoding];
+    index += deviceIDLenght;
+    self.channelNo = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    index += 4;
+    self.fileNum = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    index += 4;
+    NSMutableArray *tempArray = [NSMutableArray array];
+    for (int i = 0; i < self.fileNum; i++) {
+        XR_VideoFileInfo *videoInfo = [[XR_VideoFileInfo alloc] init];
+        short fileNameLength = [YMSocketUtils uint16FromBytes:[data subdataWithRange:NSMakeRange(index, 2)]];
+        index += 2;
+        videoInfo.fileName = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(index, fileNameLength)] encoding:GBKEncoding];
+        index += fileNameLength;
+        
+        index += 16;
+        
+        index += 16;
+        videoInfo.fileSize = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+        index += 4;
+        videoInfo.fileMainType = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+        index += 4;
+        videoInfo.fileChildType = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+        index += 4;
+        videoInfo.fileIndex = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+        index += 4;
+        videoInfo.timeLagHour = [YMSocketUtils uint8FromBytes:[data subdataWithRange:NSMakeRange(index, 1)]];
+        index += 1;
+        videoInfo.timeLagMinute = [YMSocketUtils uint8FromBytes:[data subdataWithRange:NSMakeRange(index, 1)]];
+        index += 1;
+        [tempArray addObject:videoInfo];
+    }
+    self.fileInfos = tempArray;
+    return YES;
+}
+
+@end
+
 /*
  
  // 封装数据

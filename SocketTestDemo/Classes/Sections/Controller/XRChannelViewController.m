@@ -9,6 +9,7 @@
 #import "XRChannelViewController.h"
 
 @interface XRChannelViewController ()
+@property (weak, nonatomic) IBOutlet UITextField *deviceIDTF;
 
 @end
 
@@ -18,6 +19,11 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
 }
+
+- (IBAction)searchChannel:(UIButton *)sender {
+    
+}
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

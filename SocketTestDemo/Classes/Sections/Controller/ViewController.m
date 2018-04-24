@@ -229,7 +229,7 @@
 - (IBAction)getStreamIP:(UIButton *)sender {
     XRTCPProtocol_VideoGetStreamIP *getStreamIP = [[XRTCPProtocol_VideoGetStreamIP alloc] init];
     getStreamIP.deviceID = @"123456";
-    getStreamIP.channelNo = 4;
+    getStreamIP.channelNo = 3;
     getStreamIP.workType = 1;
     [self.clientSocket writeData:[getStreamIP encodePack] withTimeout:-1 tag:getStreamIP.ProtocolValue];
 }
