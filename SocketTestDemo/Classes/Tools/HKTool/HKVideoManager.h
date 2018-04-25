@@ -28,7 +28,7 @@ typedef enum
 
 - (void)stopPlayStream;
 
-- (void)playSound;
+- (void)playSound:(BOOL)flag;
 
 // 抓图
 - (NSData *)screenshotsWithImageType:(HKVideoImageType)imageType;

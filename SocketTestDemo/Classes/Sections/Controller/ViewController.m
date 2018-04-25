@@ -264,6 +264,17 @@
     [self.videoManager stopPlayStream];
 }
 
+- (void)queryVideoFile
+{
+    XRTCPProtocol_VideoQueryFile *queryFile = [[XRTCPProtocol_VideoQueryFile alloc] init];
+    queryFile.clientGUID = @"GUID123456";
+    queryFile.deviceID = getStreamIPAck.deviceID;
+    queryFile.channelNo = getStreamIPAck.channelNo;
+    queryFile.videoType = 0xff;
+    SYSTEMTIME startTime = {2014, 2};
+    queryFile.startTime = startTime;
+}
+
 #pragma mark -GCDAsyncSocketDelegate
 - (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port
 {

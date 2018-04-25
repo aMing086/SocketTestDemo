@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "GCDAsyncSocket.h"
 
+typedef void (^ResponseBlock)(NSData *data, long tag, NSError *error);
+
 @interface SocketTool : NSObject
 
 // 客户端socket
@@ -22,6 +24,17 @@
 // 链接超时时间
 @property (nonatomic, assign, readonly) NSInteger timeOut;
 
+@property (nonatomic, copy) ResponseBlock responseBlock;
+
 - (instancetype)initWithHost:(NSString *)host port:(uint16_t)port timeOut:(NSInteger)timeOut;
+
+// 连接服务器
+- (BOOL)connectedToHost;
+
+// 断开链接
+- (void)disconnected;
+
+// 向服务器发送信息
+- (void)sendMessageWithData:(NSData *)data responseBlock:(ResponseBlock)block;
 
 @end

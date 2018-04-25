@@ -156,4 +156,54 @@
     _bSound = flag;
 }
 
+// 同步回放
+- (BOOL)sycPlayBackWithFileNames:(NSArray *)fileNames dwGroupIndex:(int)index
+{
+    // 获取播放库端口号
+    if (!PlayM4_GetPort(&_nPort)) {
+        [self stopPlayBack];
+        return NO;
+    }
+    for (NSString *fileName in fileNames) {
+        // 打开文件
+        if (!PlayM4_OpenFile(_nPort, [[fileName dataUsingEncoding:NSUTF8StringEncoding] bytes])) {
+            [self stopPlayBack];
+            return NO;
+        }
+    }
+    
+    // 设置同步回放
+    if (!PlayM4_SetSycGroup(_nPort, index)) {
+        [self stopPlayBack];
+        return NO;
+    }
+    _PlayStatus = YES;
+    // 开始解码播放
+    if (!PlayM4_Play(_nPort, _hWnd))
+    {
+        [self stopPlayBack];
+        return NO;
+    }
+    
+    return YES;
+}
+
+// 停止回放
+- (void)stopPlayBack
+{
+    if (!PlayM4_Stop(_nPort)) {
+        
+    }
+    _PlayStatus = NO;
+    if (!PlayM4_StopSoundShare(_nPort)) {
+        
+    }
+    _soundStatus = NO;
+    if (!PlayM4_CloseFile(_nPort)) {
+        
+    }
+    if (!PlayM4_FreePort(_nPort))
+        _nPort = -1;
+}
+
 @end

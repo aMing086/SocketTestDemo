@@ -22,6 +22,12 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
 #define kContentOrignPoint 7
 #define kReadContentEndPoint(DataLength) (length - 1)
 
+// 定义时间结构类
+@implementation XRTCPProtocol_SystemTime
+
+
+@end
+
 // 星软客户端协议包
 @implementation XRTCPProtocol_Basic
 
@@ -262,15 +268,15 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
 // 解码消息体
 - (BOOL)decodeBodyWithData:(NSData *)bodydata
 {
-    SYSTEMTIME time  = {[YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(0, 2)]],
-        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(2, 2)]],
-        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(4, 2)]],
-        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(6, 2)]],
-        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(8, 2)]],
-        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(10, 2)]],
-        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(12, 2)]],
-        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(14, 2)]]};
-    self.sysTime = time;
+//    SYSTEMTIME time  = {[YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(0, 2)]],
+//        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(2, 2)]],
+//        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(4, 2)]],
+//        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(6, 2)]],
+//        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(8, 2)]],
+//        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(10, 2)]],
+//        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(12, 2)]],
+//        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(14, 2)]]};
+//    self.sysTime = time;
    
     return YES;
 }
@@ -816,12 +822,12 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
 
 @end
 
-@implementation XR_VideoFileInfo : NSObject
+@implementation XR_VideoFileInfo
 
 @end
 
 // 查询录像文件（0x15）(中心)
-@implementation XRTCPProtocol_VideoQueryFile : XRTCPProtocol_Video
+@implementation XRTCPProtocol_VideoQueryFile
 
 - (instancetype)init
 {
@@ -890,7 +896,7 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
         index += 2;
         videoInfo.fileName = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(index, fileNameLength)] encoding:GBKEncoding];
         index += fileNameLength;
-        
+#warning 开始时间、结束时间
         index += 16;
         
         index += 16;
@@ -909,6 +915,405 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
         [tempArray addObject:videoInfo];
     }
     self.fileInfos = tempArray;
+    return YES;
+}
+
+@end
+
+// 开始回放 （0x16） (流服务器)
+@implementation XRTCPProtocol_VideoStartPlayBack
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.videoCmd = 0x16;
+    }
+    return self;
+}
+
+- (NSData *)encodeVideo
+{
+    NSMutableData *buf = [NSMutableData data];
+    NSData *clientGUIDData = [self.clientGUID dataUsingEncoding:GBKEncoding];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:[clientGUIDData length]]];
+    [buf appendData:clientGUIDData];
+    NSData *deviceIDData = [self.deviceID dataUsingEncoding:GBKEncoding];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:[deviceIDData length]]];
+    [buf appendData:deviceIDData];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.channelNo]];
+    [buf appendData:[YMSocketUtils byteFromUInt8:self.playBackType]];
+    NSData *fileNameData = [self.fileName dataUsingEncoding:GBKEncoding];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:[fileNameData length]]];
+    [buf appendData:fileNameData];
+    [buf appendData:[YMSocketUtils byteFromUInt8:self.calculationType]];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.fileOffset]];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.fileSize]];
+#warning 开始时间、结束时间
+    return buf;
+}
+
+@end
+
+// 开始回放应答 （0x16） (流服务器)
+@implementation XRTCPProtocol_VideoStartPlayBackAck
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.videoCmd = 0x16;
+    }
+    return self;
+}
+
+- (BOOL)decodeVideoWithData:(NSData *)data
+{
+    if (data.length < 8) {
+        return NO;
+    }
+    int index = 0;
+    self.respSeqNo = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    index += 4;
+    self.sessionID = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    
+    return YES;
+}
+
+@end
+
+// 回放视频流 0x17（流服务器）
+@implementation XRTCPProtocol_VideoPlayBackStream
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.videoCmd = 0x17;
+    }
+    return self;
+}
+
+- (NSData *)encodeVideo
+{
+    NSMutableData *buf = [NSMutableData data];
+    NSData *deviceIDData = [self.deviceID dataUsingEncoding:GBKEncoding];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:[deviceIDData length]]];
+    [buf appendData:deviceIDData];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.channelNo]];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.sessionID]];
+    [buf appendData:[YMSocketUtils byteFromUInt8:self.streamType]];
+    [buf appendData:[YMSocketUtils byteFromUInt8:self.dataType]];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:(uint)[self.videoData length]]];
+    [buf appendData:self.videoData];
+    return buf;
+}
+
+- (BOOL)decodeVideoWithData:(NSData *)data
+{
+    if (data.length < 16) {
+        return NO;
+    }
+    int index = 0;
+    ushort deviceIDLenght = [YMSocketUtils uint16FromBytes:[data subdataWithRange:NSMakeRange(index, 2)]];
+    index += 2;
+    self.deviceID = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(index, deviceIDLenght)] encoding:GBKEncoding];
+    index += deviceIDLenght;
+    if (data.length < 16 + deviceIDLenght) {
+        return NO;
+    }
+    self.channelNo = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    index += 4;
+    self.sessionID = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    index += 4;
+    self.streamType = [YMSocketUtils uint8FromBytes:[data subdataWithRange:NSMakeRange(index, 1)]];
+    index += 1;
+    self.dataType = [YMSocketUtils uint8FromBytes:[data subdataWithRange:NSMakeRange(index, 1)]];
+    index += 1;
+    uint videoDataLength = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    index += 4;
+    if (data.length < 16 + deviceIDLenght + videoDataLength) {
+        return NO;
+    }
+    self.videoData = [data subdataWithRange:NSMakeRange(index, videoDataLength)];
+    return YES;
+}
+
+@end
+
+// 停止回放 0x18 (流服务器)
+@implementation XRTCPProtocol_VideoStopPlayBack
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.videoCmd = 0x18;
+    }
+    return self;
+}
+
+- (NSData *)encodeVideo
+{
+    NSMutableData *buf = [NSMutableData data];
+    NSData *clientGUIDData = [self.clientGUID dataUsingEncoding:GBKEncoding];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:[clientGUIDData length]]];
+    [buf appendData:clientGUIDData];
+    NSData *deviceIDData = [self.deviceID dataUsingEncoding:GBKEncoding];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:[deviceIDData length]]];
+    [buf appendData:deviceIDData];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.channelNo]];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.sessionID]];
+    return buf;
+}
+
+@end
+
+// 停止回放应答 0x18 (流服务器)
+@implementation XRTCPProtocol_VideoStopPlayBackAck
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.videoCmd = 0x18;
+    }
+    return self;
+}
+
+- (BOOL)decodeVideoWithData:(NSData *)data
+{
+    if (data.length < 4) {
+        return NO;
+    }
+    int index = 0;
+    self.respSeqNo = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    
+    return YES;
+}
+
+@end
+
+// 开始语音对讲 0x19 (流服务器)
+@implementation XRTCPProtocol_VideoStartVoice
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.videoCmd = 0x19;
+    }
+    return self;
+}
+
+- (NSData *)encodeVideo
+{
+    NSMutableData *buf = [NSMutableData data];
+    NSData *clientGUIDData = [self.clientGUID dataUsingEncoding:GBKEncoding];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:[clientGUIDData length]]];
+    [buf appendData:clientGUIDData];
+    NSData *deviceIDData = [self.deviceID dataUsingEncoding:GBKEncoding];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:[deviceIDData length]]];
+    [buf appendData:deviceIDData];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.voiceChannelNo]];
+    return buf;
+}
+
+@end
+
+// 开始语音对讲应答 0x19 (流服务器)
+@implementation XRTCPProtocol_VideoStartVoiceAck
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.videoCmd = 0x19;
+    }
+    return self;
+}
+
+- (BOOL)decodeVideoWithData:(NSData *)data
+{
+    if (data.length < 8) {
+        return NO;
+    }
+    int index = 0;
+    self.respSeqNo = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    index += 4;
+    self.sessionID = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    
+    return YES;
+}
+
+@end
+
+// 对讲语音数据 0x20 (流服务器)
+@implementation XRTCPProtocol_VideoVoiceData
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.videoCmd = 0x20;
+    }
+    return self;
+}
+
+- (NSData *)encodeVideo
+{
+    NSMutableData *buf = [NSMutableData data];
+    NSData *deviceIDData = [self.deviceID dataUsingEncoding:GBKEncoding];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:[deviceIDData length]]];
+    [buf appendData:deviceIDData];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.voiceChannelNo]];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.sessionID]];
+    [buf appendData:[YMSocketUtils byteFromUInt8:self.streamType]];
+    [buf appendData:[YMSocketUtils byteFromUInt8:self.dataType]];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:(uint)[self.voiceData length]]];
+    [buf appendData:self.voiceData];
+    return buf;
+}
+
+- (BOOL)decodeVideoWithData:(NSData *)data
+{
+    if (data.length < 16) {
+        return NO;
+    }
+    int index = 0;
+    ushort deviceIDLenght = [YMSocketUtils uint16FromBytes:[data subdataWithRange:NSMakeRange(index, 2)]];
+    index += 2;
+    self.deviceID = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(index, deviceIDLenght)] encoding:GBKEncoding];
+    index += deviceIDLenght;
+    if (data.length < 16 + deviceIDLenght) {
+        return NO;
+    }
+    self.voiceChannelNo = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    index += 4;
+    self.sessionID = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    index += 4;
+    self.streamType = [YMSocketUtils uint8FromBytes:[data subdataWithRange:NSMakeRange(index, 1)]];
+    index += 1;
+    self.dataType = [YMSocketUtils uint8FromBytes:[data subdataWithRange:NSMakeRange(index, 1)]];
+    index += 1;
+    uint voiceDataLength = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    index += 4;
+    if (data.length < 16 + deviceIDLenght + voiceDataLength) {
+        return NO;
+    }
+    self.voiceData = [data subdataWithRange:NSMakeRange(index, voiceDataLength)];
+    return YES;
+}
+
+@end
+
+// 下发语音数据 0x21 (流服务器)
+@implementation XRTCPProtocol_VideoSendVoiceData
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.videoCmd = 0x21;
+    }
+    return self;
+}
+
+- (NSData *)encodeVideo
+{
+    NSMutableData *buf = [NSMutableData data];
+    NSData *clientGUIDData = [self.clientGUID dataUsingEncoding:GBKEncoding];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:[clientGUIDData length]]];
+    [buf appendData:clientGUIDData];
+    NSData *deviceIDData = [self.deviceID dataUsingEncoding:GBKEncoding];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:[deviceIDData length]]];
+    [buf appendData:deviceIDData];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.voiceChannelNo]];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.sessionID]];
+    [buf appendData:[YMSocketUtils byteFromUInt8:self.streamType]];
+    [buf appendData:[YMSocketUtils byteFromUInt8:self.dataType]];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:(uint)[self.voiceData length]]];
+    [buf appendData:self.voiceData];
+#warning 最大语音长度限制在 60k
+    return buf;
+}
+
+@end
+
+// 下发语音数据应答 0x21 (流服务器)
+@implementation XRTCPProtocol_VideoSendVoiceDataAck
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.videoCmd = 0x21;
+    }
+    return self;
+}
+
+- (BOOL)decodeVideoWithData:(NSData *)data
+{
+    if (data.length < 4) {
+        return NO;
+    }
+    int index = 0;
+    self.respSeqNo = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    
+    return YES;
+}
+
+@end
+
+// 停止语音对讲 0x22 (流服务器)
+@implementation XRTCPProtocol_VideoStopVoice
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.videoCmd = 0x22;
+    }
+    return self;
+}
+
+- (NSData *)encodeVideo
+{
+    NSMutableData *buf = [NSMutableData data];
+    NSData *clientGUIDData = [self.clientGUID dataUsingEncoding:GBKEncoding];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:[clientGUIDData length]]];
+    [buf appendData:clientGUIDData];
+    NSData *deviceIDData = [self.deviceID dataUsingEncoding:GBKEncoding];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:[deviceIDData length]]];
+    [buf appendData:deviceIDData];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.voiceChannelNo]];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.sessionID]];
+    
+    return buf;
+}
+
+@end
+
+// 停止语音对讲应答 0x22 (流服务器)
+@implementation XRTCPProtocol_VideoStopVoiceAck
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.videoCmd = 0x22;
+    }
+    return self;
+}
+
+- (BOOL)decodeVideoWithData:(NSData *)data
+{
+    if (data.length < 4) {
+        return NO;
+    }
+    int index = 0;
+    self.respSeqNo = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    
     return YES;
 }
 

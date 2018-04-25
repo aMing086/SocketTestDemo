@@ -13,6 +13,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="XRChannelViewController">
             <connections>
                 <outlet property="deviceIDTF" destination="0cR-ob-KRp" id="L5g-oj-x4f"/>
+                <outlet property="tableView" destination="YID-D0-6rb" id="ZKO-cm-yhU"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
         </placeholder>
@@ -40,6 +41,10 @@
                     <rect key="frame" x="0.0" y="58" width="375" height="609"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <connections>
+                        <outlet property="dataSource" destination="-1" id="HC0-uz-5q6"/>
+                        <outlet property="delegate" destination="-1" id="nTT-Jk-zuI"/>
+                    </connections>
                 </tableView>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

@@ -14,38 +14,26 @@
 #define XRCP_MINPACK_LEN 9
 #define XRCP_MAXPACK_LEN 20480 // 20k
 
-typedef struct _SYSTEMTIME
-{
-    ushort wYear;
-    ushort wMonth;
-    ushort wDayOfWeek;
-    ushort wDay;
-    ushort wHour;
-    ushort wMinute;
-    ushort wSecond;
-    ushort wMilliseconds;
-}   SYSTEMTIME;
-
-//SYSTEMTIME SYSTEMTIMEMake(ushort wYear, ushort wMonth, ushort wDayOfWeek, ushort wDay, ushort wHour, ushort wMinute, ushort wSecond, ushort wMilliseconds) {
-//    SYSTEMTIME systemtime;
-//    systemtime.wYear = wYear;
-//    systemtime.wMonth = wMonth;
-//    systemtime.wDayOfWeek = wDayOfWeek;
-//    systemtime.wDay = wDay;
-//    systemtime.wHour = wHour;
-//    systemtime.wMinute = wMinute;
-//    systemtime.wSecond = wSecond;
-//    systemtime.wMilliseconds = wMilliseconds;
-//    return systemtime;
-//}
-
-
 extern NSString * const TYPE_UINT8;
 extern NSString * const TYPE_UINT16;
 extern NSString * const TYPE_UINT32;
 extern NSString * const TYPE_UINT64;
 extern NSString * const TYPE_STRING;
 extern NSString * const TYPE_ARRAY;
+
+// 定义时间结构类
+@interface XRTCPProtocol_SystemTime :NSObject
+
+@property (nonatomic, assign) ushort wYear;
+@property (nonatomic, assign) ushort wMonth;
+@property (nonatomic, assign) ushort wDayOfWeek;
+@property (nonatomic, assign) ushort wDay;
+@property (nonatomic, assign) ushort wHour;
+@property (nonatomic, assign) ushort wMinute;
+@property (nonatomic, assign) ushort wSecond;
+@property (nonatomic, assign) ushort wMilliseconds;
+
+@end
 
 // 星软客户端协议包
 @interface XRTCPProtocol_Basic : NSObject
@@ -90,7 +78,7 @@ extern NSString * const TYPE_ARRAY;
 // 心跳包 ProtocolValue = 0x05
 @interface XRTCPProtocol_Contact : XRTCPProtocol_Basic
 
-@property (nonatomic, assign) SYSTEMTIME sysTime;
+@property (nonatomic, strong) XRTCPProtocol_SystemTime *sysTime;
 
 // 编码消息体
 - (NSData *)encodeBody;
@@ -250,14 +238,14 @@ extern NSString * const TYPE_ARRAY;
 @interface XR_VideoFileInfo : NSObject
 
 @property (nonatomic, strong) NSString *fileName; // 文件名
-@property (nonatomic, assign) SYSTEMTIME startTime; // 开始时间
-@property (nonatomic, assign) SYSTEMTIME endTime; // 结束时间
+@property (nonatomic, strong) XRTCPProtocol_SystemTime *startTime; // 开始时间
+@property (nonatomic, strong) XRTCPProtocol_SystemTime *endTime; // 结束时间
 @property (nonatomic, assign) uint fileSize; // 文件大小
 @property (nonatomic, assign) uint fileMainType; // 文件主类型
 @property (nonatomic, assign) uint fileChildType; // 文件次类型
 @property (nonatomic, assign) uint fileIndex; // 文件索引
-@property (nonatomic, assign) Byte timeLagHour; // 时差小时 与UTC时差
-@property (nonatomic, assign) Byte timeLagMinute; // 时差分钟 与UTC时差
+@property (nonatomic, assign) uint8_t timeLagHour; // 时差小时 与UTC时差
+@property (nonatomic, assign) uint8_t timeLagMinute; // 时差分钟 与UTC时差
 
 @end
 
@@ -268,11 +256,11 @@ extern NSString * const TYPE_ARRAY;
 @property (nonatomic, strong) NSString *deviceID; // 设备ID
 @property (nonatomic, assign) uint channelNo; // 通道号
 @property (nonatomic, assign) uint videoType; // 录像类型：0xFF-全部 0-定时录像
-@property (nonatomic, assign) SYSTEMTIME startTime; // 开始时间
-@property (nonatomic, assign) SYSTEMTIME endTime; // 结束时间
+@property (nonatomic, strong) XRTCPProtocol_SystemTime *startTime; // 开始时间
+@property (nonatomic, strong) XRTCPProtocol_SystemTime *endTime; // 结束时间
 @property (nonatomic, assign) uint index; // 起始索引 从0开始
 @property (nonatomic, assign) uint OnceQueryNum; // 单次查询个数 建议最大个数 8
-@property (nonatomic, assign) Byte dateType; // 时间类型：0-北京时间 1-UTC 时间
+@property (nonatomic, assign) uint8_t dateType; // 时间类型：0-北京时间 1-UTC 时间
 
 @end
 
@@ -293,13 +281,13 @@ extern NSString * const TYPE_ARRAY;
 @property (nonatomic, strong) NSString *clientGUID; // 客户端GUID
 @property (nonatomic, strong) NSString *deviceID; // 设备ID
 @property (nonatomic, assign) uint channelNo; // 通道号
-@property (nonatomic, assign) uint playBackType; // 回放模式 0-按文件名 1-按时间(暂不支持)
+@property (nonatomic, assign) uint8_t playBackType; // 回放模式 0-按文件名 1-按时间(暂不支持)
 @property (nonatomic, strong) NSString *fileName; // 回放文件名
-@property (nonatomic, assign) Byte calculationType; // 计算类型 0-按字节长度计算 1-按秒数计算
+@property (nonatomic, assign) uint8_t calculationType; // 计算类型 0-按字节长度计算 1-按秒数计算
 @property (nonatomic, assign) uint fileOffset; // 文件偏移量 按字节或秒。
 @property (nonatomic, assign) uint fileSize; // 回放文件大小 0-回放到该文件结束，按字节或秒。
-@property (nonatomic, assign) SYSTEMTIME startTime; // 开始时间 按时间模式有效
-@property (nonatomic, assign) SYSTEMTIME endTime; // 结束时间 按时间模式有效
+@property (nonatomic, strong) XRTCPProtocol_SystemTime *startTime; // 开始时间 按时间模式有效
+@property (nonatomic, strong) XRTCPProtocol_SystemTime *endTime; // 结束时间 按时间模式有效
 
 @end
 
