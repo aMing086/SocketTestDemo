@@ -25,7 +25,7 @@
 - (SocketTool *)socketTool
 {
     if (!_socketTool) {
-        _socketTool = [[SocketTool alloc] initWithHost:@"58.215.179.52" port:8001 timeOut:30];
+        _socketTool = [[SocketTool alloc] initWithHost:@"58.215.179.52" port:8001 timeOut:30 delegate:self];
     }
     return _socketTool;
 }

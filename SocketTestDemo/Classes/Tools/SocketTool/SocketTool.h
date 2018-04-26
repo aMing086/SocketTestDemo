@@ -8,6 +8,16 @@
 
 #import <Foundation/Foundation.h>
 #import "GCDAsyncSocket.h"
+@class SocketTool;
+
+@protocol SocketToolDelegate <NSObject>
+
+@optional
+- (void)socketTool:(SocketTool *)tool readData:(NSData *)data;
+
+- (void)socketTool:(SocketTool *)tool error:(NSError *)error;
+
+@end
 
 typedef void (^ResponseBlock)(NSData *data, long tag, NSError *error);
 
@@ -26,7 +36,13 @@ typedef void (^ResponseBlock)(NSData *data, long tag, NSError *error);
 
 @property (nonatomic, copy) ResponseBlock responseBlock;
 
-- (instancetype)initWithHost:(NSString *)host port:(uint16_t)port timeOut:(NSInteger)timeOut;
+@property (nonatomic, weak) id<SocketToolDelegate> delegate;
+
+/**
+ * 初始化类
+ * 初始化 GCDAsyncSocket 并发起链接服务器
+ */
+- (instancetype)initWithHost:(NSString *)host port:(uint16_t)port timeOut:(NSInteger)timeOut delegate:(id<SocketToolDelegate >)delegate;
 
 // 连接服务器
 - (BOOL)connectedToHost;
@@ -34,7 +50,11 @@ typedef void (^ResponseBlock)(NSData *data, long tag, NSError *error);
 // 断开链接
 - (void)disconnected;
 
-// 向服务器发送信息
+/**
+ * 向服务器发送信息 同时确定服务器链接
+ */
 - (void)sendMessageWithData:(NSData *)data responseBlock:(ResponseBlock)block;
+
+// 
 
 @end

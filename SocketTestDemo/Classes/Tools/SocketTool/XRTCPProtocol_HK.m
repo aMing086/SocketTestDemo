@@ -25,6 +25,56 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
 // 定义时间结构类
 @implementation XRTCPProtocol_SystemTime
 
+- (instancetype)initWithDate:(NSDate *)date
+{
+    self = [super init];
+    if (self) {
+        NSCalendar *calendar = [NSCalendar currentCalendar];
+        NSDateComponents *components = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay|NSCalendarUnitHour|NSCalendarUnitMinute|NSCalendarUnitSecond|NSCalendarUnitWeekday|NSCalendarUnitNanosecond fromDate:date];
+        self.wYear = [components year];
+        self.wMonth = [components month];
+        self.wDayOfWeek = [components weekday];
+        self.wDay = [components day];
+        self.wHour = [components hour];
+        self.wMinute = [components minute];
+        self.wSecond = [components second];
+        self.wMilliseconds = [components nanosecond] / 1000000;
+    }
+    return self;
+}
+
+- (NSData *)encodeSystemTime
+{
+    NSMutableData *buf = [NSMutableData data];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:self.wYear]];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:self.wMonth]];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:self.wDayOfWeek]];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:self.wDay]];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:self.wHour]];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:self.wMinute]];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:self.wSecond]];
+    [buf appendData:[YMSocketUtils bytesFromUInt16:self.wMilliseconds]];
+    return buf;
+}
+
++ (instancetype)decodeTimeWithData:(NSData *)timeData
+{
+    XRTCPProtocol_SystemTime *time = [[XRTCPProtocol_SystemTime alloc] init];
+    if (timeData.length < 16) {
+        return time;
+    }
+    time.wYear = [YMSocketUtils uint16FromBytes:[timeData subdataWithRange:NSMakeRange(0, 2)]];
+    time.wMonth = [YMSocketUtils uint16FromBytes:[timeData subdataWithRange:NSMakeRange(2, 2)]];
+    time.wDayOfWeek = [YMSocketUtils uint16FromBytes:[timeData subdataWithRange:NSMakeRange(4, 2)]];
+    time.wDay = [YMSocketUtils uint16FromBytes:[timeData subdataWithRange:NSMakeRange(6, 2)]];
+    time.wHour = [YMSocketUtils uint16FromBytes:[timeData subdataWithRange:NSMakeRange(8, 2)]];
+    time.wMinute = [YMSocketUtils uint16FromBytes:[timeData subdataWithRange:NSMakeRange(10, 2)]];
+    time.wSecond = [YMSocketUtils uint16FromBytes:[timeData subdataWithRange:NSMakeRange(12, 2)]];
+    time.wMilliseconds = [YMSocketUtils uint16FromBytes:[timeData subdataWithRange:NSMakeRange(14, 2)]];
+    
+    return time;
+
+}
 
 @end
 
@@ -240,6 +290,7 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
     self = [super init];
     if (self) {
         self.ProtocolValue = 0x05;
+        self.sysTime = [[XRTCPProtocol_SystemTime alloc] init];
     }
     return self;
 }
@@ -247,20 +298,9 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
 // 编码消息体
 - (NSData *)encodeBody
 {
-    NSMutableData *buf = [NSMutableData data];
+    XRTCPProtocol_SystemTime *systemTime = [[XRTCPProtocol_SystemTime alloc] initWithDate:[NSDate date]];
+    NSData *buf = [systemTime encodeSystemTime];
     
-    NSDate *currentDate = [NSDate date];
-    NSCalendar *calendar = [NSCalendar currentCalendar];
-    NSDateComponents *components = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay|NSCalendarUnitHour|NSCalendarUnitMinute|NSCalendarUnitSecond|NSCalendarUnitWeekday|NSCalendarUnitNanosecond fromDate:currentDate];
-//    self.sysTime = {[components year],[components month],[components ] };
-    [buf appendData:[YMSocketUtils bytesFromUInt16:[components year]]];
-    [buf appendData:[YMSocketUtils bytesFromUInt16:[components month]]];
-    [buf appendData:[YMSocketUtils bytesFromUInt16:[components weekday]]];
-    [buf appendData:[YMSocketUtils bytesFromUInt16:[components day]]];
-    [buf appendData:[YMSocketUtils bytesFromUInt16:[components hour]]];
-    [buf appendData:[YMSocketUtils bytesFromUInt16:[components minute]]];
-    [buf appendData:[YMSocketUtils bytesFromUInt16:[components second]]];
-    [buf appendData:[YMSocketUtils bytesFromUInt16:[components nanosecond] / 1000000]];
     return buf;
 }
 
@@ -268,19 +308,12 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
 // 解码消息体
 - (BOOL)decodeBodyWithData:(NSData *)bodydata
 {
-//    SYSTEMTIME time  = {[YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(0, 2)]],
-//        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(2, 2)]],
-//        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(4, 2)]],
-//        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(6, 2)]],
-//        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(8, 2)]],
-//        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(10, 2)]],
-//        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(12, 2)]],
-//        [YMSocketUtils uint16FromBytes:[bodydata subdataWithRange:NSMakeRange(14, 2)]]};
-//    self.sysTime = time;
-   
+    if (bodydata.length < 16) {
+        return NO;
+    }
+    self.sysTime = [XRTCPProtocol_SystemTime decodeTimeWithData:bodydata];
     return YES;
 }
-
 
 @end
 
@@ -824,6 +857,66 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
 
 @implementation XR_VideoFileInfo
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.startTime = [[XRTCPProtocol_SystemTime alloc] init];
+        self.endTime = [[XRTCPProtocol_SystemTime alloc] init];
+    }
+    return self;
+}
+
+- (NSData *)encodeFileInfo
+{
+    NSMutableData *buf = [NSMutableData data];
+    NSData *fileNameData = [self.fileName dataUsingEncoding:GBKEncoding];
+    
+    [buf appendData:[YMSocketUtils bytesFromUInt16:fileNameData.length]];
+    [buf appendData:fileNameData];
+    [buf appendData:[self.startTime encodeSystemTime]];
+    [buf appendData:[self.endTime encodeSystemTime]];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.fileSize]];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.fileMainType]];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.fileChildType]];
+    [buf appendData:[YMSocketUtils bytesFromUInt32:self.fileIndex]];
+    [buf appendData:[YMSocketUtils byteFromUInt8:self.timeLagHour]];
+    [buf appendData:[YMSocketUtils byteFromUInt8:self.timeLagMinute]];
+    return buf;
+}
+
++ (instancetype)decodeFileInfoWithData:(NSData *)data
+{
+    XR_VideoFileInfo *fileInfo = [[XR_VideoFileInfo alloc] init];
+    if (data.length < 52) {
+        return fileInfo;
+    }
+    NSInteger index = 0;
+    int fileNameLength = [YMSocketUtils uint16FromBytes:[data subdataWithRange:NSMakeRange(index, 2)]];
+    index += 2;
+    if (data.length < 52 + fileNameLength) {
+        return fileInfo;
+    }
+    fileInfo.fileName = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(index, fileNameLength)] encoding:GBKEncoding];
+    index += fileNameLength;
+    fileInfo.startTime = [XRTCPProtocol_SystemTime decodeTimeWithData:[data subdataWithRange:NSMakeRange(index, 16)]];
+    index += 16;
+    fileInfo.endTime = [XRTCPProtocol_SystemTime decodeTimeWithData:[data subdataWithRange:NSMakeRange(index, 16)]];
+    index += 16;
+    fileInfo.fileSize = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    index += 4;
+    fileInfo.fileMainType = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    index += 4;
+    fileInfo.fileChildType = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    index += 4;
+    fileInfo.fileIndex = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
+    index += 4;
+    fileInfo.timeLagHour = [YMSocketUtils uint8FromBytes:[data subdataWithRange:NSMakeRange(index, 1)]];
+    index += 1;
+    fileInfo.timeLagMinute = [YMSocketUtils uint8FromBytes:[data subdataWithRange:NSMakeRange(index, 1)]];
+    return fileInfo;
+}
+
 @end
 
 // 查询录像文件（0x15）(中心)
@@ -849,7 +942,8 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
     [buf appendData:deviceIDData];
     [buf appendData:[YMSocketUtils bytesFromUInt32:self.channelNo]];
     [buf appendData:[YMSocketUtils bytesFromUInt32:self.videoType]];
-#warning 开始时间、结束时间
+    [buf appendData:[self.startTime encodeSystemTime]];
+    [buf appendData:[self.endTime encodeSystemTime]];
     [buf appendData:[YMSocketUtils bytesFromUInt32:self.index]];
     [buf appendData:[YMSocketUtils bytesFromUInt32:self.OnceQueryNum]];
     [buf appendData:[YMSocketUtils byteFromUInt8:self.dateType]];
@@ -896,9 +990,9 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
         index += 2;
         videoInfo.fileName = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(index, fileNameLength)] encoding:GBKEncoding];
         index += fileNameLength;
-#warning 开始时间、结束时间
+        videoInfo.startTime = [XRTCPProtocol_SystemTime decodeTimeWithData:[data subdataWithRange:NSMakeRange(index, 16)]];
         index += 16;
-        
+        videoInfo.startTime = [XRTCPProtocol_SystemTime decodeTimeWithData:[data subdataWithRange:NSMakeRange(index, 16)]];
         index += 16;
         videoInfo.fileSize = [YMSocketUtils uint32FromBytes:[data subdataWithRange:NSMakeRange(index, 4)]];
         index += 4;
@@ -949,7 +1043,8 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
     [buf appendData:[YMSocketUtils byteFromUInt8:self.calculationType]];
     [buf appendData:[YMSocketUtils bytesFromUInt32:self.fileOffset]];
     [buf appendData:[YMSocketUtils bytesFromUInt32:self.fileSize]];
-#warning 开始时间、结束时间
+    [buf appendData:[self.startTime encodeSystemTime]];
+    [buf appendData:[self.endTime encodeSystemTime]];
     return buf;
 }
 

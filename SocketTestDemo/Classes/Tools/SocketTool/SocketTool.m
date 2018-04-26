@@ -17,13 +17,14 @@
 
 @implementation SocketTool
 
-- (instancetype)initWithHost:(NSString *)host port:(uint16_t)port timeOut:(NSInteger)timeOut
+- (instancetype)initWithHost:(NSString *)host port:(uint16_t)port timeOut:(NSInteger)timeOut delegate:(id<SocketToolDelegate >)delegate
 {
     self = [super init];
     if (self) {
         _host = host;
         _port = port;
         _timeOut = timeOut;
+        self.delegate = delegate;
         self.clientSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
         [self connectedToHost];
     }
@@ -75,6 +76,105 @@
     [self.clientSocket writeData:data withTimeout:-1 tag:contact.ProtocolValue];
 }
 
+// 查询通道号
+- (void)getChannelWithDeviceID:(NSString *)deviceID block:(void (^) (XRTCPProtocol_VideoChannelAck *ack, long tag, NSError *error))block
+{
+    XRTCPProtocol_VideoChannel *videoChannel = [[XRTCPProtocol_VideoChannel alloc] init];
+    videoChannel.deviceID = deviceID;
+    NSData *videoChannelData = [videoChannel encodePack];
+    [self sendMessageWithData:videoChannelData responseBlock:^(NSData *data, long tag, NSError *error) {
+        XRTCPProtocol_VideoChannelAck *videoChannelAck = [[XRTCPProtocol_VideoChannelAck alloc] init];
+        BOOL flag = [videoChannelAck decodePackWithData:data length:(int)[data length]];
+        if (flag && videoChannelAck.ProtocolValue == 0x40 && videoChannelAck.videoCmd == 0x01) {
+            block(videoChannelAck, tag, nil);
+        } else {
+            block(nil, tag, error);
+        }
+    }];
+}
+
+// 查询设备信息
+- (void)getDeviceInfoWithDeviceID:(NSString *)deviceID block:(void (^) (XRTCPProtocol_VideoDeviceAck *ack, long tag, NSError *error))block
+{
+    XRTCPProtocol_VideoDevice *videoDevice = [[XRTCPProtocol_VideoDevice alloc] init];
+    videoDevice.deviceID = deviceID;
+    NSData *videoDeviceData = [videoDevice encodePack];
+    [self sendMessageWithData:videoDeviceData responseBlock:^(NSData *data, long tag, NSError *error) {
+        XRTCPProtocol_VideoDeviceAck *deviceAck = [[XRTCPProtocol_VideoDeviceAck alloc] init];
+        BOOL flag = [deviceAck decodePackWithData:data length:(int)[data length]];
+        if (flag && deviceAck.ProtocolValue == 0x40 && deviceAck.videoCmd == 0x02) {
+            block(deviceAck, tag, nil);
+        } else {
+            block(nil, tag, error);
+        }
+    }];
+}
+
+// 获取流服务器地址
+- (void)getStreamIPWithDeviceID:(NSString *)deviceID channelNO:(int)channelNO workType:(NSInteger)workType block:(void (^) (XRTCPProtocol_VideoGetStreamIPAck *ack, long tag, NSError *error))block
+{
+    XRTCPProtocol_VideoGetStreamIP *getStreamIP = [[XRTCPProtocol_VideoGetStreamIP alloc] init];
+    getStreamIP.deviceID = deviceID;
+    getStreamIP.channelNo = channelNO;
+    getStreamIP.workType = workType;
+    NSData *getStreamIPData = [getStreamIP encodePack];
+    [self sendMessageWithData:getStreamIPData responseBlock:^(NSData *data, long tag, NSError *error) {
+        XRTCPProtocol_VideoGetStreamIPAck *getStreamIPAck = [[XRTCPProtocol_VideoGetStreamIPAck alloc] init];
+        BOOL flag = [getStreamIPAck decodePackWithData:data length:(int)data.length];
+        if (flag && getStreamIPAck.ProtocolValue == 0x40 && getStreamIPAck.videoCmd == 0x10) {
+            block(getStreamIPAck, tag, nil);
+        } else {
+            block(nil, tag, error);
+        }
+    }];
+}
+
+// 开始预览
+- (void)startPreviewWithClientGUID:(NSString *)clientGUID deviceID:(NSString *)deviceID channelNO:(int)channelNO streamType:(int)streamType
+{
+    XRTCPProtocol_VideoStartPreview *videoGetPreviewStream = [[XRTCPProtocol_VideoStartPreview alloc] init];
+    videoGetPreviewStream.clientGUID = clientGUID;
+    videoGetPreviewStream.deviceID = deviceID;
+    videoGetPreviewStream.channelNo = channelNO;
+    videoGetPreviewStream.streamType = streamType;
+    NSData *videoGetPreviewStreamData = [videoGetPreviewStream encodePack];
+    [self sendMessageWithData:videoGetPreviewStreamData responseBlock:^(NSData *data, long tag, NSError *error) {
+        
+    }];
+}
+
+// 停止接收预览视频流
+- (void)stopPreviewWithClientGUID:(NSString *)clientGUID deviceID:(NSString *)deviceID channelNO:(int)channelNO sessionID:(int)sessionID
+{
+    XRTCPProtocol_VideoStopPreview *videoStopPreview = [[XRTCPProtocol_VideoStopPreview alloc] init];
+    videoStopPreview.clientGUID = clientGUID;
+    videoStopPreview.deviceID = deviceID;
+    videoStopPreview.channelNo = channelNO;
+    videoStopPreview.sessionID = sessionID;
+    NSData *videoStopPreviewData = [videoStopPreview encodePack];
+    [self sendMessageWithData:videoStopPreviewData responseBlock:^(NSData *data, long tag, NSError *error) {
+        
+    }];
+}
+
+// 查询录像文件
+- (void)searchVideoFileWithClientGUID:(NSString *)clientGUID deviceID:(NSString *)deviceID channelNO:(int)channelNo startTimeStr:(NSString *)startTime endTimeStr:(NSString *)endTime
+{
+    XRTCPProtocol_VideoQueryFile *queryFile = [[XRTCPProtocol_VideoQueryFile alloc] init];
+    queryFile.clientGUID = clientGUID;
+    queryFile.deviceID = deviceID;
+    queryFile.channelNo = channelNo;
+    queryFile.videoType = 0xff;
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:@"YYYY-MM-dd HH:mm:ss"];
+    NSDate *startDate = [formatter dateFromString:startTime];
+    queryFile.startTime = [[XRTCPProtocol_SystemTime alloc] initWithDate:startDate];
+    queryFile.endTime = [[XRTCPProtocol_SystemTime alloc] initWithDate:[formatter dateFromString:endTime]];
+    queryFile.index = 0;
+    queryFile.OnceQueryNum = 1;
+    queryFile.dateType = 0;
+}
+
 #pragma mark -GCDAsyncSocketDelegate
 - (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port
 {
@@ -90,12 +190,18 @@
     if (self.responseBlock) {
         self.responseBlock(data, tag, nil);
     }
+    if (self.delegate) {
+        [self.delegate socketTool:self readData:data];
+    }
     // 读取到服务器端数据后，继续读取
     [sock readDataWithTimeout:-1 tag:0];
 }
 
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
 {
+    if (self.delegate) {
+        [self.delegate socketTool:self error:err];
+    }
     if (!err) {
         _isConnected = NO;
     } else {

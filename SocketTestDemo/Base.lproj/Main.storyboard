@@ -29,10 +29,10 @@
                                         </constraints>
                                     </view>
                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="zo0-Zs-Hue">
-                                        <rect key="frame" x="0.0" y="447" width="375" height="220"/>
+                                        <rect key="frame" x="0.0" y="567" width="375" height="100"/>
                                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="220" id="d2Z-Gl-OzB"/>
+                                            <constraint firstAttribute="height" constant="100" id="d2Z-Gl-OzB"/>
                                         </constraints>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -100,6 +100,40 @@
                                         <connections>
                                             <action selector="stopPreview:" destination="BYZ-38-t0r" eventType="touchUpInside" id="nhh-89-tfy"/>
                                         </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ARK-5b-BYd">
+                                        <rect key="frame" x="10" y="402" width="138" height="34"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="查询录像文件"/>
+                                        <connections>
+                                            <action selector="queryVideoFile:" destination="BYZ-38-t0r" eventType="touchUpInside" id="fFs-l7-kVH"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ERs-i3-2X0">
+                                        <rect key="frame" x="156" y="402" width="124" height="34"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="开始回放"/>
+                                        <connections>
+                                            <action selector="startPalyBackAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="HnO-rh-y31"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VFZ-s6-JK7">
+                                        <rect key="frame" x="288" y="402" width="79" height="34"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="停止回放"/>
+                                        <connections>
+                                            <action selector="stopPlayBackAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="QOc-Uj-fEW"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1HI-3O-hws">
+                                        <rect key="frame" x="10" y="467" width="158" height="36"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="开始语音对讲"/>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WSO-Xr-5ni">
+                                        <rect key="frame" x="188" y="467" width="140" height="36"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="停止语音对讲"/>
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>

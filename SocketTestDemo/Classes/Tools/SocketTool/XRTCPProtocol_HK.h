@@ -33,6 +33,12 @@ extern NSString * const TYPE_ARRAY;
 @property (nonatomic, assign) ushort wSecond;
 @property (nonatomic, assign) ushort wMilliseconds;
 
+- (instancetype)initWithDate:(NSDate *)date;
+
+- (NSData *)encodeSystemTime;
+
++ (instancetype)decodeTimeWithData:(NSData *)timeData;
+
 @end
 
 // 星软客户端协议包
@@ -246,6 +252,10 @@ extern NSString * const TYPE_ARRAY;
 @property (nonatomic, assign) uint fileIndex; // 文件索引
 @property (nonatomic, assign) uint8_t timeLagHour; // 时差小时 与UTC时差
 @property (nonatomic, assign) uint8_t timeLagMinute; // 时差分钟 与UTC时差
+
+- (NSData *)encodeFileInfo;
+
++ (instancetype)decodeFileInfoWithData:(NSData *)data;
 
 @end
 

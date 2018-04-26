@@ -21,6 +21,8 @@
     XRTCPProtocol_VideoStartPreviewAck *startPreviewAck;
     XRTCPProtocol_VideoPreviewStream *previewStream;
     XRTCPProtocol_VideoStopPreviewAck *stopPreviewAck;
+    XRTCPProtocol_VideoQueryFileAck *queryFileAck;
+    XRTCPProtocol_VideoStartPlayBackAck *startPlayBackAck;
     NSMutableData *_videoData;
     NSMutableData *_playData;
     NSMutableDictionary *_videoDic;
@@ -230,18 +232,18 @@
     XRTCPProtocol_VideoGetStreamIP *getStreamIP = [[XRTCPProtocol_VideoGetStreamIP alloc] init];
     getStreamIP.deviceID = @"123456";
     getStreamIP.channelNo = 3;
-    getStreamIP.workType = 1;
+    getStreamIP.workType = 2;
     [self.clientSocket writeData:[getStreamIP encodePack] withTimeout:-1 tag:getStreamIP.ProtocolValue];
 }
 
 // 开始预览
 - (IBAction)startPreview:(UIButton *)sender {
     
-    if (!_connectedTwo) {
-        BOOL flag = [self.clientSocket_two connectToHost:getStreamIPAck.streamIP onPort:getStreamIPAck.streamPort withTimeout:5.0 error:nil];
+    if (!self.clientSocket_two.isConnected) {
+        [self.clientSocket_two connectToHost:getStreamIPAck.streamIP onPort:getStreamIPAck.streamPort withTimeout:5.0 error:nil];
     }
     
-    if (_connectedTwo) {
+    if (self.clientSocket_two.isConnected) {
         XRTCPProtocol_VideoStartPreview *videoGetPreviewStream = [[XRTCPProtocol_VideoStartPreview alloc] init];
         videoGetPreviewStream.clientGUID = @"GUID123456";
         videoGetPreviewStream.deviceID = getStreamIPAck.deviceID;
@@ -264,16 +266,66 @@
     [self.videoManager stopPlayStream];
 }
 
-- (void)queryVideoFile
+- (IBAction)queryVideoFile:(UIButton *)sender
 {
     XRTCPProtocol_VideoQueryFile *queryFile = [[XRTCPProtocol_VideoQueryFile alloc] init];
     queryFile.clientGUID = @"GUID123456";
     queryFile.deviceID = getStreamIPAck.deviceID;
     queryFile.channelNo = getStreamIPAck.channelNo;
     queryFile.videoType = 0xff;
-    SYSTEMTIME startTime = {2014, 2};
-    queryFile.startTime = startTime;
+    NSString *timeStr = @"2018-04-26 15:00:00";
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:@"YYYY-MM-dd HH:mm:ss"];
+    NSDate *startDate = [formatter dateFromString:timeStr];
+    queryFile.startTime = [[XRTCPProtocol_SystemTime alloc] initWithDate:startDate];
+    NSString *endTimeStr = @"2018-04-26 16:10:00";
+    queryFile.endTime = [[XRTCPProtocol_SystemTime alloc] initWithDate:[formatter dateFromString:endTimeStr]];
+    queryFile.index = 0;
+    queryFile.OnceQueryNum = 1;
+    queryFile.dateType = 0;
+    [self.clientSocket writeData:[queryFile encodePack] withTimeout:-1 tag:2];
 }
+
+// 开始回放
+- (IBAction)startPalyBackAction:(UIButton *)sender
+{
+    if (!self.clientSocket_two.isConnected) {
+        [self.clientSocket_two connectToHost:getStreamIPAck.streamIP onPort:getStreamIPAck.streamPort withTimeout:5.0 error:nil];
+    }
+    
+    if (self.clientSocket_two.isConnected) {
+    XRTCPProtocol_VideoStartPlayBack *startPlayBack = [[XRTCPProtocol_VideoStartPlayBack alloc] init];
+    startPlayBack.clientGUID = @"guid123456";
+    startPlayBack.deviceID = queryFileAck.deviceID;
+    startPlayBack.channelNo = queryFileAck.channelNo;
+    startPlayBack.playBackType = 0;
+    XR_VideoFileInfo *file = queryFileAck.fileInfos[0];
+    startPlayBack.fileName = file.fileName;
+    startPlayBack.calculationType = 0;
+    startPlayBack.fileOffset = 0;
+    startPlayBack.fileSize = file.fileSize;
+    NSString *timeStr = @"2018-04-26 15:00:00";
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:@"YYYY-MM-dd HH:mm:ss"];
+    NSDate *startDate = [formatter dateFromString:timeStr];
+    startPlayBack.startTime = [[XRTCPProtocol_SystemTime alloc] initWithDate:startDate];
+    NSString *endTimeStr = @"2018-04-26 16:10:00";
+    startPlayBack.endTime = [[XRTCPProtocol_SystemTime alloc] initWithDate:[formatter dateFromString:endTimeStr]];
+    NSData *data = [startPlayBack encodePack];
+    [self.clientSocket_two writeData:data withTimeout:-1 tag:2];
+    }
+}
+
+- (IBAction)stopPlayBackAction:(UIButton *)sender {
+    XRTCPProtocol_VideoStopPlayBack *stopPlayBack = [[XRTCPProtocol_VideoStopPlayBack alloc] init];
+    stopPlayBack.clientGUID = @"guid123456";
+    stopPlayBack.deviceID = queryFileAck.deviceID;
+    stopPlayBack.channelNo = queryFileAck.channelNo;
+    stopPlayBack.sessionID = startPlayBackAck.sessionID;
+    NSData *data = [stopPlayBack encodePack];
+    [self.clientSocket_two writeData:data withTimeout:-1 tag:2];
+}
+
 
 #pragma mark -GCDAsyncSocketDelegate
 - (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port
@@ -415,14 +467,35 @@
                     
                     break;
                 }
-                case 14:
+                case 0x14:
                 {
                     _isPlay = NO;
                     stopPreviewAck = [[XRTCPProtocol_VideoStopPreviewAck alloc] init];
                     flag = [stopPreviewAck decodePackWithData:data length:[data length]];
                     break;
                 }
-                    
+                case 0x15:
+                {
+                    queryFileAck = [[XRTCPProtocol_VideoQueryFileAck  alloc] init];
+                    flag = [queryFileAck decodePackWithData:data length:[data length]];
+                    break;
+                }
+                case 0x16:
+                {
+                    startPlayBackAck = [[XRTCPProtocol_VideoStartPlayBackAck alloc] init];
+                    flag = [startPlayBackAck decodePackWithData:data length:data.length];
+                    break;
+                }
+                case 0x17:
+                {
+                    [_videoData appendData:data];
+                    if (_isEmpty) {
+                        _isEmpty = NO;
+                        [_playData appendData:_videoData];
+                        [_videoData replaceBytesInRange:NSMakeRange(0, _videoData.length) withBytes:NULL length:0];
+                    }
+                    break;
+                }
                 default:
                     break;
             }
