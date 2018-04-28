@@ -10,7 +10,7 @@
 #import "SocketTool.h"
 #import "XRTCPProtocol_HK.h"
 
-@interface XRChannelViewController ()<UITableViewDelegate, UITableViewDataSource>
+@interface XRChannelViewController ()<UITableViewDelegate, UITableViewDataSource, SocketToolDelegate>
 
 @property (weak, nonatomic) IBOutlet UITextField *deviceIDTF;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
@@ -25,7 +25,7 @@
 - (SocketTool *)socketTool
 {
     if (!_socketTool) {
-        _socketTool = [[SocketTool alloc] initWithHost:@"58.215.179.52" port:8001 timeOut:30 delegate:self];
+        _socketTool = [[SocketTool alloc] initWithHost:@"58.215.179.52" port:8001 timeOut:-1 delegate:self];
     }
     return _socketTool;
 }
@@ -33,11 +33,27 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
+//    [self.socketTool connectedToHost];
+    [self setupUI];
+}
+
+- (void)setupUI
+{
+    self.title = @"查询通道号";
+    self.tableView.tableFooterView = [UIView new];
+    self.tableView.allowsMultipleSelection = YES;
 }
 
 - (IBAction)searchChannel:(UIButton *)sender {
+    [self.view endEditing:YES];
     XRTCPProtocol_VideoChannel *videoChannel = [[XRTCPProtocol_VideoChannel alloc] init];
-    videoChannel.deviceID = self.deviceIDTF.text;
+    if (self.deviceIDTF.text.length == 0) {
+        videoChannel.deviceID = @"123456";
+        self.deviceIDTF.text = @"123456";
+    } else {
+        videoChannel.deviceID = self.deviceIDTF.text;
+    }
+    
     NSData *videoChannelData = [videoChannel encodePack];
     __block typeof(self) blockSelf = self;
     [self.socketTool sendMessageWithData:videoChannelData responseBlock:^(NSData *data, long tag, NSError *error) {
@@ -51,12 +67,20 @@
                     blockSelf.videoChannelAck = [[XRTCPProtocol_VideoChannelAck alloc] init];
                     flag = [blockSelf.videoChannelAck decodePackWithData:data length:(int)[data length]];
                     if (flag) {
-                        [self.tableView reloadData];
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [self.tableView reloadData];
+                        });
                     }
                 }
             }
         }
     }];
+}
+
+#pragma mark -UIScrollViewDelegate
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    [self.view endEditing:YES];
 }
 
 #pragma mark -UITableViewDelegate
@@ -74,10 +98,24 @@
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
     if (!cell) {
         cell = [[UITableViewCell alloc] initWithStyle:(UITableViewCellStyleDefault) reuseIdentifier:identifier];
+        UIView *bgV = [[UIView alloc] init];
+        bgV.backgroundColor = [UIColor colorWithRed:243 / 255.0 green:243 / 255.0 blue:243 / 255.0 alpha:1];
+        cell.selectedBackgroundView = bgV;
     }
     XR_VideoChannelInfo *channelInfo = self.videoChannelAck.Channels[indexPath.row];
     cell.textLabel.text = [NSString stringWithFormat:@"通道号：%d", channelInfo.nChannelNo];
     return cell;
+}
+
+#pragma mark -
+- (void)socketTool:(SocketTool *)tool readData:(NSData *)data
+{
+    
+}
+
+- (void)socketTool:(SocketTool *)tool error:(NSError *)error
+{
+    
 }
 
 - (void)didReceiveMemoryWarning {

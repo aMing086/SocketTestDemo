@@ -16,15 +16,47 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SocketTestDemo/Classes/Sections/Controller/ViewController.m"
-            timestampString = "546427480.974233"
+            timestampString = "546598030.249036"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "479"
-            endingLineNumber = "479"
+            startingLineNumber = "480"
+            endingLineNumber = "480"
+            landmarkName = "-socket:didReadData:withTag:"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SocketTestDemo/Classes/Sections/Controller/ViewController.m"
+            timestampString = "546598030.249897"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "486"
+            endingLineNumber = "486"
+            landmarkName = "-socket:didReadData:withTag:"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SocketTestDemo/Classes/Sections/Controller/ViewController.m"
+            timestampString = "546598030.250416"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "492"
+            endingLineNumber = "492"
             landmarkName = "-socket:didReadData:withTag:"
             landmarkType = "7">
          </BreakpointContent>
@@ -35,12 +67,28 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "SocketTestDemo/Classes/Sections/Controller/ViewController.m"
-            timestampString = "546427480.974872"
+            filePath = "SocketTestDemo/Classes/Tools/SocketTool/SocketTool.m"
+            timestampString = "546598030.250965"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "485"
-            endingLineNumber = "485"
+            startingLineNumber = "183"
+            endingLineNumber = "183"
+            landmarkName = "-socket:didConnectToHost:port:"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SocketTestDemo/Classes/Tools/SocketTool/SocketTool.m"
+            timestampString = "546598030.25102"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "191"
+            endingLineNumber = "191"
             landmarkName = "-socket:didReadData:withTag:"
             landmarkType = "7">
          </BreakpointContent>
@@ -51,13 +99,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "SocketTestDemo/Classes/Sections/Controller/ViewController.m"
-            timestampString = "546427480.975153"
+            filePath = "SocketTestDemo/Classes/Tools/SocketTool/SocketTool.m"
+            timestampString = "546598030.2510689"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "491"
-            endingLineNumber = "491"
-            landmarkName = "-socket:didReadData:withTag:"
+            startingLineNumber = "203"
+            endingLineNumber = "203"
+            landmarkName = "-socketDidDisconnect:withError:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -68,12 +116,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SocketTestDemo/Classes/Sections/Controller/ViewController.m"
-            timestampString = "546427528.014835"
+            timestampString = "546598030.2511179"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "353"
-            endingLineNumber = "353"
-            landmarkName = "-socket:didReadData:withTag:"
+            startingLineNumber = "557"
+            endingLineNumber = "557"
+            landmarkName = "-socketDidDisconnect:withError:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -83,13 +131,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "SocketTestDemo/Classes/Sections/Controller/ViewController.m"
-            timestampString = "546427543.067463"
+            filePath = "SocketTestDemo/Classes/Tools/SocketTool/SocketTool.m"
+            timestampString = "546598030.251623"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "271"
-            endingLineNumber = "271"
-            landmarkName = "-queryVideoFile:"
+            startingLineNumber = "56"
+            endingLineNumber = "56"
+            landmarkName = "-sendMessageWithData:responseBlock:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

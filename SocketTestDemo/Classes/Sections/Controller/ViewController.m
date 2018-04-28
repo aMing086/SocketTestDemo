@@ -97,7 +97,7 @@
                 }
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.videoManager playStreamData:tempPreviewStream.videoData dataType:tempPreviewStream.dataType  length:[tempPreviewStream.videoData length]];
-                    NSLog(@"%d", tempPreviewStream.dataType);
+//                    NSLog(@"%d", tempPreviewStream.dataType);
                 });
 
             }
@@ -231,7 +231,7 @@
 - (IBAction)getStreamIP:(UIButton *)sender {
     XRTCPProtocol_VideoGetStreamIP *getStreamIP = [[XRTCPProtocol_VideoGetStreamIP alloc] init];
     getStreamIP.deviceID = @"123456";
-    getStreamIP.channelNo = 3;
+    getStreamIP.channelNo = 4;
     getStreamIP.workType = 2;
     [self.clientSocket writeData:[getStreamIP encodePack] withTimeout:-1 tag:getStreamIP.ProtocolValue];
 }
@@ -277,9 +277,9 @@
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     [formatter setDateFormat:@"YYYY-MM-dd HH:mm:ss"];
     NSDate *startDate = [formatter dateFromString:timeStr];
-    queryFile.startTime = [[XRTCPProtocol_SystemTime alloc] initWithDate:startDate];
+    queryFile.startTime = [[XRTCPProtocol_Time alloc] initWithDate:startDate];
     NSString *endTimeStr = @"2018-04-26 16:10:00";
-    queryFile.endTime = [[XRTCPProtocol_SystemTime alloc] initWithDate:[formatter dateFromString:endTimeStr]];
+    queryFile.endTime = [[XRTCPProtocol_Time alloc] initWithDate:[formatter dateFromString:endTimeStr]];
     queryFile.index = 0;
     queryFile.OnceQueryNum = 1;
     queryFile.dateType = 0;
@@ -308,9 +308,9 @@
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     [formatter setDateFormat:@"YYYY-MM-dd HH:mm:ss"];
     NSDate *startDate = [formatter dateFromString:timeStr];
-    startPlayBack.startTime = [[XRTCPProtocol_SystemTime alloc] initWithDate:startDate];
+    startPlayBack.startTime = [[XRTCPProtocol_Time alloc] initWithDate:startDate];
     NSString *endTimeStr = @"2018-04-26 16:10:00";
-    startPlayBack.endTime = [[XRTCPProtocol_SystemTime alloc] initWithDate:[formatter dateFromString:endTimeStr]];
+    startPlayBack.endTime = [[XRTCPProtocol_Time alloc] initWithDate:[formatter dateFromString:endTimeStr]];
     NSData *data = [startPlayBack encodePack];
     [self.clientSocket_two writeData:data withTimeout:-1 tag:2];
     }
@@ -349,6 +349,7 @@
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
+    
     // 处理从服务器端获取到的数据
     if (!basic) {
         basic = [[XRTCPProtocol_Basic alloc] init];
@@ -397,6 +398,7 @@
                     flag = [startPreviewAck decodePackWithData:data length:(int)data.length];
                     [_videoData replaceBytesInRange:NSMakeRange(0, _videoData.length) withBytes:NULL length:0];
                     [_playData replaceBytesInRange:NSMakeRange(0, _playData.length) withBytes:NULL length:0];
+                    NSLog(@"开会预览：%@", data);
                     _isStream = NO;
                     _isPlay = YES;
                     break;
@@ -527,7 +529,7 @@
 
 - (void)socket:(GCDAsyncSocket *)sock didWriteDataWithTag:(long)tag
 {
-    NSLog(@"%ld", tag);
+//    NSLog(@"%ld", tag);
 }
 
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(nullable NSError *)err
@@ -559,6 +561,7 @@
             [self appendLogStr:@"断开连接\n"];
         });
     } else {
+        [sock disconnect];
         dispatch_async(dispatch_get_main_queue(), ^{
             [self appendLogStr:[NSString stringWithFormat:@"%@\n",[err description]]];
         });

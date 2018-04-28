@@ -34,12 +34,13 @@
 // 连接服务器
 - (BOOL)connectedToHost
 {
-    if (!self.clientSocket.isConnected) {
+    if (!_isConnected) {
         NSError *error = nil;
         if (![self.clientSocket connectToHost:_host onPort:_port withTimeout:_timeOut error:&error]) {
             return NO;
         }
     }
+    _isConnected = YES;
     return YES;
 }
 

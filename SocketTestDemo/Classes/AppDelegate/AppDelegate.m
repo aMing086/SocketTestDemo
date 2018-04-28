@@ -7,16 +7,23 @@
 //
 
 #import "AppDelegate.h"
-
+#import "ViewController.h"
+#import "XRChannelViewController.h"
 @interface AppDelegate ()
 
 @end
 
 @implementation AppDelegate
 
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    self.window = [[UIWindow alloc] init];
+    ViewController *VC = [[ViewController alloc] initWithNibName:@"ViewController" bundle:[NSBundle mainBundle]];
+    self.window.rootViewController = VC;
+//    XRChannelViewController *VC = [[XRChannelViewController alloc] initWithNibName:@"XRChannelViewController" bundle:[NSBundle mainBundle]];
+//    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:VC];
+//    self.window.rootViewController = nav;
+    [self.window makeKeyAndVisible];
     return YES;
 }
 

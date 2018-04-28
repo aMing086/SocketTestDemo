@@ -16,9 +16,12 @@
 		C02765212046559000CF7973 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C02765112046559000CF7973 /* AppDelegate.m */; };
 		C0276527204656AE00CF7973 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C0276525204656AE00CF7973 /* ViewController.m */; };
 		C027652B20469B2500CF7973 /* SocketTool.m in Sources */ = {isa = PBXBuildFile; fileRef = C027652A20469B2500CF7973 /* SocketTool.m */; };
+		C07209E420941C5F001FDE54 /* XRTCPProtocol_HK.m in Sources */ = {isa = PBXBuildFile; fileRef = C07209E320941C5E001FDE54 /* XRTCPProtocol_HK.m */; };
+		C07209EB20941CF8001FDE54 /* XRHKVideoManagerVC.m in Sources */ = {isa = PBXBuildFile; fileRef = C07209EA20941CF8001FDE54 /* XRHKVideoManagerVC.m */; };
+		C07209EE20947606001FDE54 /* XRSocketDataPool.m in Sources */ = {isa = PBXBuildFile; fileRef = C07209ED20947606001FDE54 /* XRSocketDataPool.m */; };
 		C07A8463206C7D22001967FE /* XRVideoDataTool.m in Sources */ = {isa = PBXBuildFile; fileRef = C07A8462206C7D21001967FE /* XRVideoDataTool.m */; };
-		C0832D3F2051165000DC3851 /* XRTCPProtocol_HK.m in Sources */ = {isa = PBXBuildFile; fileRef = C0832D3E2051165000DC3851 /* XRTCPProtocol_HK.m */; };
 		C08D7E1320575BE600368548 /* HKVideoStream_log.txt in Resources */ = {isa = PBXBuildFile; fileRef = C08D7E1220575BE600368548 /* HKVideoStream_log.txt */; };
+		C08F61BE2092BBFA00416CA3 /* ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = C08F61BD2092BBFA00416CA3 /* ViewController.xib */; };
 		C091EA2720722A5200E89880 /* XRChannelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C091EA2520722A5200E89880 /* XRChannelViewController.m */; };
 		C091EA2820722A5200E89880 /* XRChannelViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = C091EA2620722A5200E89880 /* XRChannelViewController.xib */; };
 		C091EA2C20722A6D00E89880 /* XRVideoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C091EA2A20722A6D00E89880 /* XRVideoViewController.m */; };
@@ -80,11 +83,16 @@
 		C0276526204656AE00CF7973 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		C027652920469B2500CF7973 /* SocketTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SocketTool.h; sourceTree = "<group>"; };
 		C027652A20469B2500CF7973 /* SocketTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SocketTool.m; sourceTree = "<group>"; };
+		C07209E220941C5E001FDE54 /* XRTCPProtocol_HK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XRTCPProtocol_HK.h; sourceTree = "<group>"; };
+		C07209E320941C5E001FDE54 /* XRTCPProtocol_HK.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XRTCPProtocol_HK.m; sourceTree = "<group>"; };
+		C07209E920941CF8001FDE54 /* XRHKVideoManagerVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XRHKVideoManagerVC.h; sourceTree = "<group>"; };
+		C07209EA20941CF8001FDE54 /* XRHKVideoManagerVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XRHKVideoManagerVC.m; sourceTree = "<group>"; };
+		C07209EC20947606001FDE54 /* XRSocketDataPool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XRSocketDataPool.h; sourceTree = "<group>"; };
+		C07209ED20947606001FDE54 /* XRSocketDataPool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XRSocketDataPool.m; sourceTree = "<group>"; };
 		C07A8461206C7D21001967FE /* XRVideoDataTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XRVideoDataTool.h; sourceTree = "<group>"; };
 		C07A8462206C7D21001967FE /* XRVideoDataTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XRVideoDataTool.m; sourceTree = "<group>"; };
-		C0832D3D2051165000DC3851 /* XRTCPProtocol_HK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XRTCPProtocol_HK.h; sourceTree = "<group>"; };
-		C0832D3E2051165000DC3851 /* XRTCPProtocol_HK.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XRTCPProtocol_HK.m; sourceTree = "<group>"; };
 		C08D7E1220575BE600368548 /* HKVideoStream_log.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HKVideoStream_log.txt; sourceTree = "<group>"; };
+		C08F61BD2092BBFA00416CA3 /* ViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ViewController.xib; sourceTree = "<group>"; };
 		C091EA2420722A5200E89880 /* XRChannelViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XRChannelViewController.h; sourceTree = "<group>"; };
 		C091EA2520722A5200E89880 /* XRChannelViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XRChannelViewController.m; sourceTree = "<group>"; };
 		C091EA2620722A5200E89880 /* XRChannelViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = XRChannelViewController.xib; sourceTree = "<group>"; };
@@ -318,6 +326,8 @@
 		C027651F2046559000CF7973 /* Tools */ = {
 			isa = PBXGroup;
 			children = (
+				C07209E520941C95001FDE54 /* VideoManager */,
+				C07209E120941C5E001FDE54 /* XRProtocolTool */,
 				C07A8460206C7D11001967FE /* VideoDataTool */,
 				C0978DEB205913CB0092F531 /* HKTool */,
 				C0276528204699FB00CF7973 /* SocketTool */,
@@ -347,6 +357,7 @@
 			children = (
 				C0276526204656AE00CF7973 /* ViewController.h */,
 				C0276525204656AE00CF7973 /* ViewController.m */,
+				C08F61BD2092BBFA00416CA3 /* ViewController.xib */,
 				C091EA2420722A5200E89880 /* XRChannelViewController.h */,
 				C091EA2520722A5200E89880 /* XRChannelViewController.m */,
 				C091EA2620722A5200E89880 /* XRChannelViewController.xib */,
@@ -369,10 +380,26 @@
 			children = (
 				C027652920469B2500CF7973 /* SocketTool.h */,
 				C027652A20469B2500CF7973 /* SocketTool.m */,
-				C0832D3D2051165000DC3851 /* XRTCPProtocol_HK.h */,
-				C0832D3E2051165000DC3851 /* XRTCPProtocol_HK.m */,
 			);
 			path = SocketTool;
+			sourceTree = "<group>";
+		};
+		C07209E120941C5E001FDE54 /* XRProtocolTool */ = {
+			isa = PBXGroup;
+			children = (
+				C07209E220941C5E001FDE54 /* XRTCPProtocol_HK.h */,
+				C07209E320941C5E001FDE54 /* XRTCPProtocol_HK.m */,
+			);
+			path = XRProtocolTool;
+			sourceTree = "<group>";
+		};
+		C07209E520941C95001FDE54 /* VideoManager */ = {
+			isa = PBXGroup;
+			children = (
+				C07209E920941CF8001FDE54 /* XRHKVideoManagerVC.h */,
+				C07209EA20941CF8001FDE54 /* XRHKVideoManagerVC.m */,
+			);
+			path = VideoManager;
 			sourceTree = "<group>";
 		};
 		C07A8460206C7D11001967FE /* VideoDataTool */ = {
@@ -380,6 +407,8 @@
 			children = (
 				C07A8461206C7D21001967FE /* XRVideoDataTool.h */,
 				C07A8462206C7D21001967FE /* XRVideoDataTool.m */,
+				C07209EC20947606001FDE54 /* XRSocketDataPool.h */,
+				C07209ED20947606001FDE54 /* XRSocketDataPool.m */,
 			);
 			path = VideoDataTool;
 			sourceTree = "<group>";
@@ -537,6 +566,7 @@
 			files = (
 				C02764E62046555F00CF7973 /* Assets.xcassets in Resources */,
 				C08D7E1320575BE600368548 /* HKVideoStream_log.txt in Resources */,
+				C08F61BE2092BBFA00416CA3 /* ViewController.xib in Resources */,
 				C091EA2820722A5200E89880 /* XRChannelViewController.xib in Resources */,
 				C02764E42046555F00CF7973 /* Main.storyboard in Resources */,
 				C09CBB8720567CDD00651B84 /* header.txt in Resources */,
@@ -614,7 +644,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C0832D3F2051165000DC3851 /* XRTCPProtocol_HK.m in Sources */,
+				C07209EE20947606001FDE54 /* XRSocketDataPool.m in Sources */,
+				C07209E420941C5F001FDE54 /* XRTCPProtocol_HK.m in Sources */,
 				C0978DEE205916560092F531 /* HKVideoManager.m in Sources */,
 				C091EA2C20722A6D00E89880 /* XRVideoViewController.m in Sources */,
 				C0276527204656AE00CF7973 /* ViewController.m in Sources */,
@@ -622,6 +653,7 @@
 				C027652B20469B2500CF7973 /* SocketTool.m in Sources */,
 				C091EA2720722A5200E89880 /* XRChannelViewController.m in Sources */,
 				C07A8463206C7D22001967FE /* XRVideoDataTool.m in Sources */,
+				C07209EB20941CF8001FDE54 /* XRHKVideoManagerVC.m in Sources */,
 				C09CBB7D205671B700651B84 /* YMSocketUtils.m in Sources */,
 				C02764EC2046555F00CF7973 /* main.m in Sources */,
 			);
@@ -779,6 +811,7 @@
 			baseConfigurationReference = F501EDF5A616AC6BDC218A1A /* Pods-SocketTestDemo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = AU2WTZRMWG;
 				INFOPLIST_FILE = SocketTestDemo/Info.plist;
@@ -799,6 +832,7 @@
 			baseConfigurationReference = 0AE09507650A6A613C0871A0 /* Pods-SocketTestDemo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = AU2WTZRMWG;
 				INFOPLIST_FILE = SocketTestDemo/Info.plist;

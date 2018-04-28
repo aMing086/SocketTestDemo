@@ -21,7 +21,7 @@ extern NSString * const TYPE_UINT64;
 extern NSString * const TYPE_STRING;
 extern NSString * const TYPE_ARRAY;
 
-// 定义时间结构类
+// 定义时间结构类(只用于心跳包）
 @interface XRTCPProtocol_SystemTime :NSObject
 
 @property (nonatomic, assign) ushort wYear;
@@ -36,6 +36,24 @@ extern NSString * const TYPE_ARRAY;
 - (instancetype)initWithDate:(NSDate *)date;
 
 - (NSData *)encodeSystemTime;
+
++ (instancetype)decodeTimeWithData:(NSData *)timeData;
+
+@end
+
+// 定义时间类
+@interface XRTCPProtocol_Time : NSObject
+
+@property (nonatomic, assign) ushort wYear;
+@property (nonatomic, assign) ushort wMonth;
+@property (nonatomic, assign) ushort wDay;
+@property (nonatomic, assign) ushort wHour;
+@property (nonatomic, assign) ushort wMinute;
+@property (nonatomic, assign) ushort wSecond;
+
+- (instancetype)initWithDate:(NSDate *)date;
+
+- (NSData *)encodeTime;
 
 + (instancetype)decodeTimeWithData:(NSData *)timeData;
 
@@ -244,8 +262,8 @@ extern NSString * const TYPE_ARRAY;
 @interface XR_VideoFileInfo : NSObject
 
 @property (nonatomic, strong) NSString *fileName; // 文件名
-@property (nonatomic, strong) XRTCPProtocol_SystemTime *startTime; // 开始时间
-@property (nonatomic, strong) XRTCPProtocol_SystemTime *endTime; // 结束时间
+@property (nonatomic, strong) XRTCPProtocol_Time *startTime; // 开始时间
+@property (nonatomic, strong) XRTCPProtocol_Time *endTime; // 结束时间
 @property (nonatomic, assign) uint fileSize; // 文件大小
 @property (nonatomic, assign) uint fileMainType; // 文件主类型
 @property (nonatomic, assign) uint fileChildType; // 文件次类型
@@ -266,8 +284,8 @@ extern NSString * const TYPE_ARRAY;
 @property (nonatomic, strong) NSString *deviceID; // 设备ID
 @property (nonatomic, assign) uint channelNo; // 通道号
 @property (nonatomic, assign) uint videoType; // 录像类型：0xFF-全部 0-定时录像
-@property (nonatomic, strong) XRTCPProtocol_SystemTime *startTime; // 开始时间
-@property (nonatomic, strong) XRTCPProtocol_SystemTime *endTime; // 结束时间
+@property (nonatomic, strong) XRTCPProtocol_Time *startTime; // 开始时间
+@property (nonatomic, strong) XRTCPProtocol_Time *endTime; // 结束时间
 @property (nonatomic, assign) uint index; // 起始索引 从0开始
 @property (nonatomic, assign) uint OnceQueryNum; // 单次查询个数 建议最大个数 8
 @property (nonatomic, assign) uint8_t dateType; // 时间类型：0-北京时间 1-UTC 时间
@@ -296,8 +314,8 @@ extern NSString * const TYPE_ARRAY;
 @property (nonatomic, assign) uint8_t calculationType; // 计算类型 0-按字节长度计算 1-按秒数计算
 @property (nonatomic, assign) uint fileOffset; // 文件偏移量 按字节或秒。
 @property (nonatomic, assign) uint fileSize; // 回放文件大小 0-回放到该文件结束，按字节或秒。
-@property (nonatomic, strong) XRTCPProtocol_SystemTime *startTime; // 开始时间 按时间模式有效
-@property (nonatomic, strong) XRTCPProtocol_SystemTime *endTime; // 结束时间 按时间模式有效
+@property (nonatomic, strong) XRTCPProtocol_Time *startTime; // 开始时间 按时间模式有效
+@property (nonatomic, strong) XRTCPProtocol_Time *endTime; // 结束时间 按时间模式有效
 
 @end
 
