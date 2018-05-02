@@ -8,7 +8,7 @@
 
 #import "ViewController.h"
 #import "XRTCPProtocol_HK.h"
-#import "HKVideoManager.h"
+#import "XRHKSDKManager.h"
 #import "XRVideoDataTool.h"
 
 @interface ViewController ()<GCDAsyncSocketDelegate>
@@ -36,7 +36,7 @@
 @property (nonatomic, assign) BOOL connectedTwo;
 @property (nonatomic, strong) NSTimer *connectTimer;
 @property (nonatomic, strong) NSTimer *connectTimerTwo;
-@property (nonatomic, strong) HKVideoManager *videoManager;
+@property (nonatomic, strong) XRHKSDKManager *hkSDKManager;
 
 
 @property (weak, nonatomic) IBOutlet UIView *playView;
@@ -65,12 +65,12 @@
     return _clientSocket_two;
 }
 
-- (HKVideoManager *)videoManager
+- (XRHKSDKManager *)hkSDKManager
 {
-    if (!_videoManager) {
-        _videoManager = [[HKVideoManager alloc] initWithHwnd:(__bridge void *)self.playView];
+    if (!_hkSDKManager) {
+        _hkSDKManager = [[XRHKSDKManager alloc] initWithHwnd:(__bridge void *)self.playView];
     }
-    return _videoManager;
+    return _hkSDKManager;
 }
 
 - (void)viewDidLoad
@@ -96,7 +96,7 @@
                     continue;
                 }
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.videoManager playStreamData:tempPreviewStream.videoData dataType:tempPreviewStream.dataType  length:[tempPreviewStream.videoData length]];
+                    [self.hkSDKManager playStreamData:tempPreviewStream.videoData dataType:tempPreviewStream.dataType  length:[tempPreviewStream.videoData length]];
 //                    NSLog(@"%d", tempPreviewStream.dataType);
                 });
 
@@ -263,7 +263,7 @@
     videoStopPreview.sessionID = startPreviewAck.sessionID;
     [self.clientSocket_two writeData:[videoStopPreview encodePack] withTimeout:-1 tag:2];
     
-    [self.videoManager stopPlayStream];
+    [self.hkSDKManager stopPlayStream];
 }
 
 - (IBAction)queryVideoFile:(UIButton *)sender

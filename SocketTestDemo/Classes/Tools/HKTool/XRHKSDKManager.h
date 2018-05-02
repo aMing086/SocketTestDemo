@@ -1,8 +1,8 @@
 //
-//  HKVideoManager.h
+//  XRHKSDKManager.h
 //  SocketTestDemo
 //
-//  Created by 369 on 2018/3/14.
+//  Created by 369 on 2018/5/2.
 //  Copyright © 2018年 XR. All rights reserved.
 //
 
@@ -15,7 +15,7 @@ typedef enum
     HKVideoImageTypeBMPEx, // 带有私有信息BMP
 }HKVideoImageType;
 
-@interface HKVideoManager : NSObject
+@interface XRHKSDKManager : NSObject
 
 @property (nonatomic, assign) void *hWnd;
 @property (nonatomic, assign, readonly) int nPort;

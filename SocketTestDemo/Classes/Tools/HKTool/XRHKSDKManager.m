@@ -1,21 +1,21 @@
 //
-//  HKVideoManager.m
+//  XRHKSDKManager.m
 //  SocketTestDemo
 //
-//  Created by 369 on 2018/3/14.
+//  Created by 369 on 2018/5/2.
 //  Copyright © 2018年 XR. All rights reserved.
 //
 
-#import "HKVideoManager.h"
+#import "XRHKSDKManager.h"
 #import "MobilePlaySDKInterface.h"
 
-@interface HKVideoManager()
+@interface XRHKSDKManager()
 {
     BOOL _bSound;
 }
 @end
 
-@implementation HKVideoManager
+@implementation XRHKSDKManager
 
 - (instancetype)initWithHwnd:(void *)hWnd
 {
@@ -100,8 +100,8 @@
     if (!PlayM4_CloseStream(_nPort)) {
         
     }
-    if (!PlayM4_FreePort(_nPort)) 
-    _nPort = -1;
+    if (!PlayM4_FreePort(_nPort))
+        _nPort = -1;
 }
 
 // 抓图

@@ -8,10 +8,20 @@
 
 #import "SocketTool.h"
 #import "XRTCPProtocol_HK.h"
+#import "XRSocketDataCache.h"
+
+#define kSocket_TimeOut 5
 
 @interface SocketTool ()<GCDAsyncSocketDelegate>
+{
+    dispatch_queue_t _serialDataQueue;
+    dispatch_queue_t _serialSelfQueue;
+    dispatch_queue_t _callbackQueue;
+}
 
 @property (nonatomic, strong) NSTimer *connectTimer;
+@property (nonatomic, strong) XRSocketDataCache *dataCache;
+
 
 @end
 
@@ -25,7 +35,15 @@
         _port = port;
         _timeOut = timeOut;
         self.delegate = delegate;
+        _serialDataQueue = dispatch_queue_create("com.XRHKVideo.socketTool.serialData", DISPATCH_QUEUE_SERIAL);
+        _serialSelfQueue = dispatch_queue_create("com.XRHKVideo.socketTool.serialSelf", DISPATCH_QUEUE_SERIAL);
+        
+        _callbackQueue = dispatch_get_main_queue();
+        // 初始化数据缓冲区
+        self.dataCache = [[XRSocketDataCache alloc] init];
+        // 初始化socket
         self.clientSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
+        // 连接服务器
         [self connectedToHost];
     }
     return self;
@@ -75,6 +93,15 @@
     NSData *data = [contact encodePack];
     // 发送固定格式的数据
     [self.clientSocket writeData:data withTimeout:-1 tag:contact.ProtocolValue];
+}
+
+// 关闭定时发送心跳包
+- (void)stopTimer
+{
+    if (self.connectTimer) {
+        [self.connectTimer invalidate];
+        self.connectTimer = nil;
+    }
 }
 
 // 查询通道号
@@ -176,6 +203,35 @@
     queryFile.dateType = 0;
 }
 
+- (void)dealCacheData
+{
+    dispatch_async(_serialDataQueue, ^{
+        while (1) {
+            if (_playData.length == 0) {
+                _isEmpty = YES;
+                [NSThread sleepForTimeInterval:0.1];
+                continue;
+            }
+            @synchronized(self) {
+                XRTCPProtocol_VideoPreviewStream *tempPreviewStream = [XRVideoDataTool decodePreViewStreamFromData:_playData];
+                if (tempPreviewStream == nil) {
+                    _isEmpty = YES;
+                    [NSThread sleepForTimeInterval:0.1];
+                    continue;
+                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.hkSDKManager playStreamData:tempPreviewStream.videoData dataType:tempPreviewStream.dataType  length:[tempPreviewStream.videoData length]];
+                    //                    NSLog(@"%d", tempPreviewStream.dataType);
+                });
+                
+            }
+            
+            
+        }
+        
+    });
+}
+
 #pragma mark -GCDAsyncSocketDelegate
 - (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port
 {
@@ -188,25 +244,48 @@
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
-    if (self.responseBlock) {
-        self.responseBlock(data, tag, nil);
-    }
-    if (self.delegate) {
-        [self.delegate socketTool:self readData:data];
-    }
+    [self.dataCache writeData:data];
+//    if (self.responseBlock) {
+//        self.responseBlock(data, tag, nil);
+//    }
+//    if (self.delegate && [self.delegate respondsToSelector:@selector(socketTool:readData:)]) {
+//        [self.delegate socketTool:self readData:data];
+//    }
     // 读取到服务器端数据后，继续读取
     [sock readDataWithTimeout:-1 tag:0];
 }
 
+// 当过了超时时间服务器还未响应，说明网络拥堵或异常，你可以选择重新发送、提醒用户网络不稳定等操作。 -1代表没有超时时间。
+- (NSTimeInterval)socket:(GCDAsyncSocket *)sock shouldTimeoutReadWithTag:(long)tag elapsed:(NSTimeInterval)elapsed bytesDone:(NSUInteger)length
+{
+    return elapsed;
+}
+
+- (NSTimeInterval)socket:(GCDAsyncSocket *)sock shouldTimeoutWriteWithTag:(long)tag elapsed:(NSTimeInterval)elapsed bytesDone:(NSUInteger)length
+{
+    return elapsed;
+}
+
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
 {
-    if (self.delegate) {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(socketTool:error:)]) {
         [self.delegate socketTool:self error:err];
     }
+    [self stopTimer];
     if (!err) {
         _isConnected = NO;
     } else {
         [sock disconnect];
+    }
+}
+
+- (void)dealloc
+{
+    [self disconnected];
+    _clientSocket = nil;
+    if (_connectTimer) {
+        [_connectTimer invalidate];
+        _connectTimer = nil;
     }
 }
 

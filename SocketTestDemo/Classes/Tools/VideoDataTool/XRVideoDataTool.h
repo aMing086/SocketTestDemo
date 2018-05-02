@@ -13,4 +13,6 @@
 
 + (XRTCPProtocol_VideoPreviewStream *)decodePreViewStreamFromData:(NSMutableData *)data;
 
++ (NSData *)getCompletePacketFromData:(NSMutableData *)data;
+
 @end

@@ -34,6 +34,7 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
 //    [self.socketTool connectedToHost];
+    self.navigationController.navigationBar.translucent = NO;
     [self setupUI];
 }
 
@@ -68,6 +69,14 @@
                     flag = [blockSelf.videoChannelAck decodePackWithData:data length:(int)[data length]];
                     if (flag) {
                         dispatch_async(dispatch_get_main_queue(), ^{
+                            if (blockSelf.videoChannelAck.channelNum == 0) {
+                                UIAlertController *alertC = [UIAlertController alertControllerWithTitle:@"提示" message:@"未获取到通道信息！" preferredStyle:(UIAlertControllerStyleAlert)];
+                                UIAlertAction *sureAction = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction * _Nonnull action) {
+                                    
+                                }];
+                                [alertC addAction:sureAction];
+                                [self.navigationController presentViewController:alertC animated:YES completion:nil];
+                            }
                             [self.tableView reloadData];
                         });
                     }
