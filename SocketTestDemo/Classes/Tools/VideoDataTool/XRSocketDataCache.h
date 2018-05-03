@@ -15,6 +15,6 @@
 
 - (void)writeData:(NSData *)data;
 
-- (NSData *)readData;
+- (NSMutableData *)readCacheData;
 
 @end

@@ -9,6 +9,7 @@
 #import "XRChannelViewController.h"
 #import "SocketTool.h"
 #import "XRTCPProtocol_HK.h"
+#import "XRVideoViewController.h"
 
 @interface XRChannelViewController ()<UITableViewDelegate, UITableViewDataSource, SocketToolDelegate>
 
@@ -33,7 +34,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
-//    [self.socketTool connectedToHost];
     self.navigationController.navigationBar.translucent = NO;
     [self setupUI];
 }
@@ -45,6 +45,7 @@
     self.tableView.allowsMultipleSelection = YES;
 }
 
+#pragma mark -Action
 - (IBAction)searchChannel:(UIButton *)sender {
     [self.view endEditing:YES];
     XRTCPProtocol_VideoChannel *videoChannel = [[XRTCPProtocol_VideoChannel alloc] init];
@@ -56,7 +57,9 @@
     }
     
     NSData *videoChannelData = [videoChannel encodePack];
-    __block typeof(self) blockSelf = self;
+    [self.socketTool sendMessageWithData:videoChannelData];
+    /*
+     __block typeof(self) blockSelf = self;
     [self.socketTool sendMessageWithData:videoChannelData responseBlock:^(NSData *data, long tag, NSError *error) {
         XRTCPProtocol_Basic *basic = [[XRTCPProtocol_Basic alloc] init];
         BOOL flag = [basic decodePackWithData:data length:(int)[data length]];
@@ -65,25 +68,41 @@
                 XRTCPProtocol_Video *video = [[XRTCPProtocol_Video alloc] init];
                 flag = [video decodePackWithData:data length:(int)[data length]];
                 if (flag && video.videoCmd == 0x01) {
-                    blockSelf.videoChannelAck = [[XRTCPProtocol_VideoChannelAck alloc] init];
-                    flag = [blockSelf.videoChannelAck decodePackWithData:data length:(int)[data length]];
-                    if (flag) {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            if (blockSelf.videoChannelAck.channelNum == 0) {
-                                UIAlertController *alertC = [UIAlertController alertControllerWithTitle:@"提示" message:@"未获取到通道信息！" preferredStyle:(UIAlertControllerStyleAlert)];
-                                UIAlertAction *sureAction = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction * _Nonnull action) {
-                                    
-                                }];
-                                [alertC addAction:sureAction];
-                                [self.navigationController presentViewController:alertC animated:YES completion:nil];
-                            }
-                            [self.tableView reloadData];
-                        });
+     
                     }
                 }
             }
         }
     }];
+     */
+}
+
+- (IBAction)previewAction:(UIButton *)sender {
+    NSArray *indexPahts = self.tableView.indexPathsForSelectedRows;
+    if (indexPahts.count == 0) {
+        
+    }
+    NSMutableArray *channels = [NSMutableArray array];
+    for (NSIndexPath *indexPath in indexPahts) {
+        XR_VideoChannelInfo *channel = self.videoChannelAck.Channels[indexPath.row];
+        [channels addObject:channel];
+    }
+    XRVideoViewController *videoVC = [[XRVideoViewController alloc] initWithDeviceID:self.deviceIDTF.text channels:channels workType:HKVideoWorkTypePre];
+    [self.navigationController pushViewController:videoVC animated:YES];
+}
+
+- (IBAction)backPlayAction:(UIButton *)sender {
+    NSArray *indexPahts = self.tableView.indexPathsForSelectedRows;
+    if (indexPahts.count == 0) {
+        
+    }
+    NSMutableArray *channels = [NSMutableArray array];
+    for (NSIndexPath *indexPath in indexPahts) {
+        XR_VideoChannelInfo *channel = self.videoChannelAck.Channels[indexPath.row];
+        [channels addObject:channel];
+    }
+    XRVideoViewController *videoVC = [[XRVideoViewController alloc] initWithDeviceID:self.deviceIDTF.text channels:channels workType:HKVideoWorkTypeBackPlay];
+    [self.navigationController pushViewController:videoVC animated:YES];
 }
 
 #pragma mark -UIScrollViewDelegate
@@ -116,9 +135,24 @@
     return cell;
 }
 
-#pragma mark -
-- (void)socketTool:(SocketTool *)tool readData:(NSData *)data
+#pragma mark -SockToolDelegate
+- (void)socketTool:(SocketTool *)tool readCompletePackData:(NSData *)packData
 {
+    XRTCPProtocol_Basic *basic = [XRVideoDataTool decodePackWithCompletePacketData:packData];
+    if ([basic isKindOfClass:[XRTCPProtocol_VideoChannelAck class]]) {
+        self.videoChannelAck = basic;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (self.videoChannelAck.channelNum == 0) {
+                UIAlertController *alertC = [UIAlertController alertControllerWithTitle:@"提示" message:@"未获取到通道信息！" preferredStyle:(UIAlertControllerStyleAlert)];
+                UIAlertAction *sureAction = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction * _Nonnull action) {
+                    
+                }];
+                [alertC addAction:sureAction];
+                [self.navigationController presentViewController:alertC animated:YES completion:nil];
+            }
+            [self.tableView reloadData];
+        });
+    }
     
 }
 

@@ -15,4 +15,6 @@
 
 + (NSData *)getCompletePacketFromData:(NSMutableData *)data;
 
++ (XRTCPProtocol_Basic *)decodePackWithCompletePacketData:(NSData *)data;
+
 @end

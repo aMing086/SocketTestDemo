@@ -28,7 +28,7 @@
     return self;
 }
 
-- (BOOL)playStreamData:(NSData *)streamData dataType:(NSInteger)dataType length:(uint)length
+- (BOOL)playStreamData:(NSData *)streamData dataType:(NSInteger)dataType length:(NSUInteger)length
 {
     if (streamData == nil) {
         return NO;

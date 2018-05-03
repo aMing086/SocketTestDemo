@@ -31,10 +31,10 @@
     [self.data appendData:data];
 }
 
-- (NSData *)readData
+- (NSMutableData *)readCacheData
 {
     _isAddData = NO;
-    NSData *data = [NSData dataWithData:self.data];
+    NSMutableData *data = [NSMutableData dataWithData:self.data];
     [self.data replaceBytesInRange:NSMakeRange(0, data.length) withBytes:NULL length:0];
     return data;
 }

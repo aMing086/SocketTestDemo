@@ -7,7 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "XRHKVideoManager.h"
 
 @interface XRVideoViewController : UIViewController
+
+- (instancetype)initWithDeviceID:(NSString *)deviceID channels:(NSArray *)channels workType:(HKVideoWorkType)workType;
 
 @end

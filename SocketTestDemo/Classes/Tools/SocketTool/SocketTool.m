@@ -7,8 +7,6 @@
 //
 
 #import "SocketTool.h"
-#import "XRTCPProtocol_HK.h"
-#import "XRSocketDataCache.h"
 
 #define kSocket_TimeOut 5
 
@@ -17,11 +15,10 @@
     dispatch_queue_t _serialDataQueue;
     dispatch_queue_t _serialSelfQueue;
     dispatch_queue_t _callbackQueue;
+    NSMutableData* _receiveData;
 }
 
 @property (nonatomic, strong) NSTimer *connectTimer;
-@property (nonatomic, strong) XRSocketDataCache *dataCache;
-
 
 @end
 
@@ -37,10 +34,9 @@
         self.delegate = delegate;
         _serialDataQueue = dispatch_queue_create("com.XRHKVideo.socketTool.serialData", DISPATCH_QUEUE_SERIAL);
         _serialSelfQueue = dispatch_queue_create("com.XRHKVideo.socketTool.serialSelf", DISPATCH_QUEUE_SERIAL);
-        
+        // 生成唯一标识
+        self.clientGUID = [self get_uuid];
         _callbackQueue = dispatch_get_main_queue();
-        // 初始化数据缓冲区
-        self.dataCache = [[XRSocketDataCache alloc] init];
         // 初始化socket
         self.clientSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
         // 连接服务器
@@ -66,13 +62,14 @@
 - (void)disconnected
 {
     [self.clientSocket disconnect];
+    // 重新生成唯一标识
+    self.clientGUID = [self get_uuid];
 }
 
 // 向服务器发送信息
-- (void)sendMessageWithData:(NSData *)data responseBlock:(ResponseBlock)block
+- (void)sendMessageWithData:(NSData *)data
 {
     if ([self connectedToHost]) {
-        self.responseBlock = block;
         [self.clientSocket writeData:data withTimeout:-1 tag:0];
     }
     
@@ -104,132 +101,32 @@
     }
 }
 
-// 查询通道号
-- (void)getChannelWithDeviceID:(NSString *)deviceID block:(void (^) (XRTCPProtocol_VideoChannelAck *ack, long tag, NSError *error))block
+// 处理接收到的信息
+- (void)doReciveMsgs
 {
-    XRTCPProtocol_VideoChannel *videoChannel = [[XRTCPProtocol_VideoChannel alloc] init];
-    videoChannel.deviceID = deviceID;
-    NSData *videoChannelData = [videoChannel encodePack];
-    [self sendMessageWithData:videoChannelData responseBlock:^(NSData *data, long tag, NSError *error) {
-        XRTCPProtocol_VideoChannelAck *videoChannelAck = [[XRTCPProtocol_VideoChannelAck alloc] init];
-        BOOL flag = [videoChannelAck decodePackWithData:data length:(int)[data length]];
-        if (flag && videoChannelAck.ProtocolValue == 0x40 && videoChannelAck.videoCmd == 0x01) {
-            block(videoChannelAck, tag, nil);
-        } else {
-            block(nil, tag, error);
-        }
-    }];
-}
-
-// 查询设备信息
-- (void)getDeviceInfoWithDeviceID:(NSString *)deviceID block:(void (^) (XRTCPProtocol_VideoDeviceAck *ack, long tag, NSError *error))block
-{
-    XRTCPProtocol_VideoDevice *videoDevice = [[XRTCPProtocol_VideoDevice alloc] init];
-    videoDevice.deviceID = deviceID;
-    NSData *videoDeviceData = [videoDevice encodePack];
-    [self sendMessageWithData:videoDeviceData responseBlock:^(NSData *data, long tag, NSError *error) {
-        XRTCPProtocol_VideoDeviceAck *deviceAck = [[XRTCPProtocol_VideoDeviceAck alloc] init];
-        BOOL flag = [deviceAck decodePackWithData:data length:(int)[data length]];
-        if (flag && deviceAck.ProtocolValue == 0x40 && deviceAck.videoCmd == 0x02) {
-            block(deviceAck, tag, nil);
-        } else {
-            block(nil, tag, error);
-        }
-    }];
-}
-
-// 获取流服务器地址
-- (void)getStreamIPWithDeviceID:(NSString *)deviceID channelNO:(int)channelNO workType:(NSInteger)workType block:(void (^) (XRTCPProtocol_VideoGetStreamIPAck *ack, long tag, NSError *error))block
-{
-    XRTCPProtocol_VideoGetStreamIP *getStreamIP = [[XRTCPProtocol_VideoGetStreamIP alloc] init];
-    getStreamIP.deviceID = deviceID;
-    getStreamIP.channelNo = channelNO;
-    getStreamIP.workType = workType;
-    NSData *getStreamIPData = [getStreamIP encodePack];
-    [self sendMessageWithData:getStreamIPData responseBlock:^(NSData *data, long tag, NSError *error) {
-        XRTCPProtocol_VideoGetStreamIPAck *getStreamIPAck = [[XRTCPProtocol_VideoGetStreamIPAck alloc] init];
-        BOOL flag = [getStreamIPAck decodePackWithData:data length:(int)data.length];
-        if (flag && getStreamIPAck.ProtocolValue == 0x40 && getStreamIPAck.videoCmd == 0x10) {
-            block(getStreamIPAck, tag, nil);
-        } else {
-            block(nil, tag, error);
-        }
-    }];
-}
-
-// 开始预览
-- (void)startPreviewWithClientGUID:(NSString *)clientGUID deviceID:(NSString *)deviceID channelNO:(int)channelNO streamType:(int)streamType
-{
-    XRTCPProtocol_VideoStartPreview *videoGetPreviewStream = [[XRTCPProtocol_VideoStartPreview alloc] init];
-    videoGetPreviewStream.clientGUID = clientGUID;
-    videoGetPreviewStream.deviceID = deviceID;
-    videoGetPreviewStream.channelNo = channelNO;
-    videoGetPreviewStream.streamType = streamType;
-    NSData *videoGetPreviewStreamData = [videoGetPreviewStream encodePack];
-    [self sendMessageWithData:videoGetPreviewStreamData responseBlock:^(NSData *data, long tag, NSError *error) {
-        
-    }];
-}
-
-// 停止接收预览视频流
-- (void)stopPreviewWithClientGUID:(NSString *)clientGUID deviceID:(NSString *)deviceID channelNO:(int)channelNO sessionID:(int)sessionID
-{
-    XRTCPProtocol_VideoStopPreview *videoStopPreview = [[XRTCPProtocol_VideoStopPreview alloc] init];
-    videoStopPreview.clientGUID = clientGUID;
-    videoStopPreview.deviceID = deviceID;
-    videoStopPreview.channelNo = channelNO;
-    videoStopPreview.sessionID = sessionID;
-    NSData *videoStopPreviewData = [videoStopPreview encodePack];
-    [self sendMessageWithData:videoStopPreviewData responseBlock:^(NSData *data, long tag, NSError *error) {
-        
-    }];
-}
-
-// 查询录像文件
-- (void)searchVideoFileWithClientGUID:(NSString *)clientGUID deviceID:(NSString *)deviceID channelNO:(int)channelNo startTimeStr:(NSString *)startTime endTimeStr:(NSString *)endTime
-{
-    XRTCPProtocol_VideoQueryFile *queryFile = [[XRTCPProtocol_VideoQueryFile alloc] init];
-    queryFile.clientGUID = clientGUID;
-    queryFile.deviceID = deviceID;
-    queryFile.channelNo = channelNo;
-    queryFile.videoType = 0xff;
-    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    [formatter setDateFormat:@"YYYY-MM-dd HH:mm:ss"];
-    NSDate *startDate = [formatter dateFromString:startTime];
-    queryFile.startTime = [[XRTCPProtocol_SystemTime alloc] initWithDate:startDate];
-    queryFile.endTime = [[XRTCPProtocol_SystemTime alloc] initWithDate:[formatter dateFromString:endTime]];
-    queryFile.index = 0;
-    queryFile.OnceQueryNum = 1;
-    queryFile.dateType = 0;
-}
-
-- (void)dealCacheData
-{
-    dispatch_async(_serialDataQueue, ^{
-        while (1) {
-            if (_playData.length == 0) {
-                _isEmpty = YES;
-                [NSThread sleepForTimeInterval:0.1];
-                continue;
+    while (1) {
+        __block NSData *packData = [XRVideoDataTool getCompletePacketFromData:_receiveData];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (packData && self.delegate && [self.delegate respondsToSelector:@selector(socketTool:readCompletePackData:)]) {
+                [self.delegate socketTool:self readCompletePackData:packData];
             }
-            @synchronized(self) {
-                XRTCPProtocol_VideoPreviewStream *tempPreviewStream = [XRVideoDataTool decodePreViewStreamFromData:_playData];
-                if (tempPreviewStream == nil) {
-                    _isEmpty = YES;
-                    [NSThread sleepForTimeInterval:0.1];
-                    continue;
-                }
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.hkSDKManager playStreamData:tempPreviewStream.videoData dataType:tempPreviewStream.dataType  length:[tempPreviewStream.videoData length]];
-                    //                    NSLog(@"%d", tempPreviewStream.dataType);
-                });
-                
-            }
-            
-            
-        }
+        });
         
-    });
+        if (!packData || _receiveData.length == 0) {
+            break;
+        }
+    }
+    
+}
+
+- (NSString *)get_uuid
+{
+    CFUUIDRef uuid_ref = CFUUIDCreate(NULL);
+    CFStringRef uuid_string_ref= CFUUIDCreateString(NULL, uuid_ref);
+    CFRelease(uuid_ref);
+    NSString *uuid = [NSString stringWithString:(__bridge NSString*)uuid_string_ref];
+    CFRelease(uuid_string_ref);
+    return uuid;
 }
 
 #pragma mark -GCDAsyncSocketDelegate
@@ -244,13 +141,14 @@
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
-    [self.dataCache writeData:data];
-//    if (self.responseBlock) {
-//        self.responseBlock(data, tag, nil);
-//    }
-//    if (self.delegate && [self.delegate respondsToSelector:@selector(socketTool:readData:)]) {
-//        [self.delegate socketTool:self readData:data];
-//    }
+    dispatch_async(_serialDataQueue, ^{
+        if (!_receiveData) {
+            _receiveData = [[NSMutableData alloc]init];
+        }
+        [_receiveData appendData:data];
+        [self doReciveMsgs];
+    });
+    
     // 读取到服务器端数据后，继续读取
     [sock readDataWithTimeout:-1 tag:0];
 }
@@ -268,6 +166,34 @@
 
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
 {
+    /*
+     Error Domain=NSPOSIXErrorDomain Code=0 "Undefined error: 0" UserInfo={NSLocalizedDescription=Undefined error: 0, NSLocalizedFailureReason=Error in connect() function}
+     
+     Printing description of sock:
+     <GCDAsyncSocket: 0x1057182e0>
+     Printing description of sock:
+     (NSObject) NSObject = {
+     isa = GCDAsyncSocket
+     }
+     Printing description of sock->delegate:
+     <SocketTool: 0x1c00cd430>
+     Printing description of sock->delegateQueue:
+     <OS_dispatch_queue_root: com.apple.root.default-qos[0x10535d500] = { xref = -2147483648, ref = -2147483648, sref = 1, target = [0x0], width = 0xfff, state = 0x0060000000000000, in-barrier}>
+     Printing description of sock->socketUrl:
+     <nil>
+     Printing description of sock->connectInterface4:
+     <nil>
+     Printing description of sock->connectInterface6:
+     <nil>
+     Printing description of sock->connectInterfaceUN:
+     <nil>
+     Printing description of sock->socketQueue:
+     <OS_dispatch_queue: GCDAsyncSocket[0x1c0342260] = { xref = 1, ref = 1, sref = 2, target = com.apple.root.default-qos.overcommit[0x10535d5c0], width = 0x1, state = 0x001ffe2000000000, in-flight = 0}>
+     Printing description of sock->socketQueue:
+     <OS_dispatch_queue: GCDAsyncSocket[0x1c0342260] = { xref = 1, ref = 1, sref = 2, target = com.apple.root.default-qos.overcommit[0x10535d5c0], width = 0x1, state = 0x001ffe2000000000, in-flight = 0}>
+     Printing description of sock->IsOnSocketQueueOrTargetQueueKey:
+     (void *) IsOnSocketQueueOrTargetQueueKey = 0x0000000105718408
+     */
     if (self.delegate && [self.delegate respondsToSelector:@selector(socketTool:error:)]) {
         [self.delegate socketTool:self error:err];
     }
@@ -290,3 +216,104 @@
 }
 
 @end
+
+/*
+ // 查询通道号
+ - (void)getChannelWithDeviceID:(NSString *)deviceID block:(void (^) (XRTCPProtocol_VideoChannelAck *ack, long tag, NSError *error))block
+ {
+ XRTCPProtocol_VideoChannel *videoChannel = [[XRTCPProtocol_VideoChannel alloc] init];
+ videoChannel.deviceID = deviceID;
+ NSData *videoChannelData = [videoChannel encodePack];
+ [self sendMessageWithData:videoChannelData responseBlock:^(NSData *data, long tag, NSError *error) {
+ XRTCPProtocol_VideoChannelAck *videoChannelAck = [[XRTCPProtocol_VideoChannelAck alloc] init];
+ BOOL flag = [videoChannelAck decodePackWithData:data length:(int)[data length]];
+ if (flag && videoChannelAck.ProtocolValue == 0x40 && videoChannelAck.videoCmd == 0x01) {
+ block(videoChannelAck, tag, nil);
+ } else {
+ block(nil, tag, error);
+ }
+ }];
+ }
+ 
+ // 查询设备信息
+ - (void)getDeviceInfoWithDeviceID:(NSString *)deviceID block:(void (^) (XRTCPProtocol_VideoDeviceAck *ack, long tag, NSError *error))block
+ {
+ XRTCPProtocol_VideoDevice *videoDevice = [[XRTCPProtocol_VideoDevice alloc] init];
+ videoDevice.deviceID = deviceID;
+ NSData *videoDeviceData = [videoDevice encodePack];
+ [self sendMessageWithData:videoDeviceData responseBlock:^(NSData *data, long tag, NSError *error) {
+ XRTCPProtocol_VideoDeviceAck *deviceAck = [[XRTCPProtocol_VideoDeviceAck alloc] init];
+ BOOL flag = [deviceAck decodePackWithData:data length:(int)[data length]];
+ if (flag && deviceAck.ProtocolValue == 0x40 && deviceAck.videoCmd == 0x02) {
+ block(deviceAck, tag, nil);
+ } else {
+ block(nil, tag, error);
+ }
+ }];
+ }
+ 
+ // 获取流服务器地址
+ - (void)getStreamIPWithDeviceID:(NSString *)deviceID channelNO:(int)channelNO workType:(NSInteger)workType block:(void (^) (XRTCPProtocol_VideoGetStreamIPAck *ack, long tag, NSError *error))block
+ {
+ XRTCPProtocol_VideoGetStreamIP *getStreamIP = [[XRTCPProtocol_VideoGetStreamIP alloc] init];
+ getStreamIP.deviceID = deviceID;
+ getStreamIP.channelNo = channelNO;
+ getStreamIP.workType = workType;
+ NSData *getStreamIPData = [getStreamIP encodePack];
+ [self sendMessageWithData:getStreamIPData responseBlock:^(NSData *data, long tag, NSError *error) {
+ XRTCPProtocol_VideoGetStreamIPAck *getStreamIPAck = [[XRTCPProtocol_VideoGetStreamIPAck alloc] init];
+ BOOL flag = [getStreamIPAck decodePackWithData:data length:(int)data.length];
+ if (flag && getStreamIPAck.ProtocolValue == 0x40 && getStreamIPAck.videoCmd == 0x10) {
+ block(getStreamIPAck, tag, nil);
+ } else {
+ block(nil, tag, error);
+ }
+ }];
+ }
+ 
+ // 开始预览
+ - (void)startPreviewWithClientGUID:(NSString *)clientGUID deviceID:(NSString *)deviceID channelNO:(int)channelNO streamType:(int)streamType
+ {
+ XRTCPProtocol_VideoStartPreview *videoGetPreviewStream = [[XRTCPProtocol_VideoStartPreview alloc] init];
+ videoGetPreviewStream.clientGUID = clientGUID;
+ videoGetPreviewStream.deviceID = deviceID;
+ videoGetPreviewStream.channelNo = channelNO;
+ videoGetPreviewStream.streamType = streamType;
+ NSData *videoGetPreviewStreamData = [videoGetPreviewStream encodePack];
+ [self sendMessageWithData:videoGetPreviewStreamData responseBlock:^(NSData *data, long tag, NSError *error) {
+ 
+ }];
+ }
+ 
+ // 停止接收预览视频流
+ - (void)stopPreviewWithClientGUID:(NSString *)clientGUID deviceID:(NSString *)deviceID channelNO:(int)channelNO sessionID:(int)sessionID
+ {
+ XRTCPProtocol_VideoStopPreview *videoStopPreview = [[XRTCPProtocol_VideoStopPreview alloc] init];
+ videoStopPreview.clientGUID = clientGUID;
+ videoStopPreview.deviceID = deviceID;
+ videoStopPreview.channelNo = channelNO;
+ videoStopPreview.sessionID = sessionID;
+ NSData *videoStopPreviewData = [videoStopPreview encodePack];
+ [self sendMessageWithData:videoStopPreviewData responseBlock:^(NSData *data, long tag, NSError *error) {
+ 
+ }];
+ }
+ 
+ // 查询录像文件
+ - (void)searchVideoFileWithClientGUID:(NSString *)clientGUID deviceID:(NSString *)deviceID channelNO:(int)channelNo startTimeStr:(NSString *)startTime endTimeStr:(NSString *)endTime
+ {
+ XRTCPProtocol_VideoQueryFile *queryFile = [[XRTCPProtocol_VideoQueryFile alloc] init];
+ queryFile.clientGUID = clientGUID;
+ queryFile.deviceID = deviceID;
+ queryFile.channelNo = channelNo;
+ queryFile.videoType = 0xff;
+ NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+ [formatter setDateFormat:@"YYYY-MM-dd HH:mm:ss"];
+ NSDate *startDate = [formatter dateFromString:startTime];
+ queryFile.startTime = [[XRTCPProtocol_SystemTime alloc] initWithDate:startDate];
+ queryFile.endTime = [[XRTCPProtocol_SystemTime alloc] initWithDate:[formatter dateFromString:endTime]];
+ queryFile.index = 0;
+ queryFile.OnceQueryNum = 1;
+ queryFile.dateType = 0;
+ }
+ */

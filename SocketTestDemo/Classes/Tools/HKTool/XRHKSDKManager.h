@@ -24,7 +24,7 @@ typedef enum
 
 - (instancetype)initWithHwnd:(void *)hWnd;
 
-- (BOOL)playStreamData:(NSData *)streamData dataType:(NSInteger)dataType length:(uint)length;
+- (BOOL)playStreamData:(NSData *)streamData dataType:(NSInteger)dataType length:(NSUInteger)length;
 
 - (void)stopPlayStream;
 

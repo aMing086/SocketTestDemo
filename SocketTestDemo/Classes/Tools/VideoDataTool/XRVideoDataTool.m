@@ -15,7 +15,7 @@
         return nil;
     }
     int i, nStart = -1;
-    Byte *buf = data.bytes;
+    Byte *buf = (Byte *)data.bytes;
     for (i = 0; i < data.length - 1; i++) {
         if (buf[i] == XRCP_HEAD) {
             if (buf[i + 1] == XRCP_HEAD) {
@@ -33,7 +33,7 @@
         [data replaceBytesInRange:NSMakeRange(0, nStart) withBytes:NULL length:0];
 
     }
-    Byte *tempBuf = data.bytes;
+    Byte *tempBuf = (Byte *)data.bytes;
     for (i = 1; i < data.length; i++) {
         if (tempBuf[i] == XRCP_TAIL) {
             XRTCPProtocol_VideoPreviewStream *previewStream = [[XRTCPProtocol_VideoPreviewStream alloc] init];
@@ -51,7 +51,7 @@
         return nil;
     }
     int i, nStart = -1;
-    Byte *buf = data.bytes;
+    Byte *buf = (Byte *)data.bytes;
     for (i = 0; i < data.length - 1; i++) {
         if (buf[i] == XRCP_HEAD) {
             if (buf[i + 1] == XRCP_HEAD) {
@@ -78,6 +78,122 @@
         }
     }
     return nil;
+}
+
++ (XRTCPProtocol_Basic *)decodePackWithCompletePacketData:(NSData *)data
+{
+    XRTCPProtocol_Basic *basic = [[XRTCPProtocol_Basic alloc] init];
+    if (data) {
+        BOOL flag = [basic decodePackWithData:data length:(int)[data length]];
+        if (flag) {
+            if (basic.ProtocolValue == 0x05) {
+                basic = [[XRTCPProtocol_Contact alloc] init];
+                flag = [basic decodePackWithData:data length:(int)[data length]];
+                
+            } else if (basic.ProtocolValue == 0x35) {
+                basic = [[XRTCPProtocol_LoginAck alloc] init];
+                flag = [basic decodePackWithData:data length:(int)[data length]];
+                
+            } else if (basic.ProtocolValue == 0x40) {
+                XRTCPProtocol_Video *video = [[XRTCPProtocol_Video alloc] init];
+                flag = [video decodePackWithData:data length:(int)[data length]];
+                
+                switch (video.videoCmd) {
+                    case 0x01:
+                    {
+                        video = [[XRTCPProtocol_VideoChannelAck alloc] init];
+                        flag = [video decodePackWithData:data length:(int)[data length]];
+                        break;
+                    }
+                    case 0x02:
+                    {
+                        video = [[XRTCPProtocol_VideoDeviceAck alloc] init];
+                        flag = [video decodePackWithData:data length:(int)[data length]];
+                        break;
+                    }
+                    case 0x10:
+                    {
+                        video = [[XRTCPProtocol_VideoGetStreamIPAck alloc] init];
+                        flag = [video decodePackWithData:data length:(int)data.length];
+                        break;
+                    }
+                        
+                    case 0x12:
+                    {
+                        video = [[XRTCPProtocol_VideoStartPreviewAck alloc] init];
+                        flag = [video decodePackWithData:data length:(int)data.length];
+                        
+                        break;
+                    }
+                    case 0x13:
+                    {
+                        video = [[XRTCPProtocol_VideoPreviewStream alloc] init];
+                        flag = [video decodePackWithData:data length:(int)data.length];
+                        break;
+                    }
+                    case 0x14:
+                    {
+                        video = [[XRTCPProtocol_VideoStopPreviewAck alloc] init];
+                        flag = [video decodePackWithData:data length:[data length]];
+                        break;
+                    }
+                    case 0x15:
+                    {
+                        video = [[XRTCPProtocol_VideoQueryFileAck  alloc] init];
+                        flag = [video decodePackWithData:data length:[data length]];
+                        break;
+                    }
+                    case 0x16:
+                    {
+                        video = [[XRTCPProtocol_VideoStartPlayBackAck alloc] init];
+                        flag = [video decodePackWithData:data length:data.length];
+                        break;
+                    }
+                    case 0x17:
+                    {
+                        video = [[XRTCPProtocol_VideoPlayBackStream alloc] init];
+                        flag = [video decodePackWithData:data length:data.length];
+                        break;
+                    }
+                    case 0x18:
+                    {
+                        video = [[XRTCPProtocol_VideoStopPlayBackAck alloc] init];
+                        flag = [video decodePackWithData:data length:data.length];
+                        break;
+                    }
+                    case 0x19:
+                    {
+                        video = [[XRTCPProtocol_VideoStartVoiceAck alloc] init];
+                        flag = [video decodePackWithData:data length:data.length];
+                        break;
+                    }
+                    case 0x20:
+                    {
+                        video = [[XRTCPProtocol_VideoVoiceData alloc] init];
+                        flag = [video decodePackWithData:data length:data.length];
+                        break;
+                    }
+                    case 0x21:
+                    {
+                        video = [[XRTCPProtocol_VideoSendVoiceDataAck alloc] init];
+                        flag = [video decodePackWithData:data length:data.length];
+                        break;
+                    }
+                    case 0x22:
+                    {
+                        video = [[XRTCPProtocol_VideoStopVoiceAck alloc] init];
+                        flag = [video decodePackWithData:data length:data.length];
+                        break;
+                    }
+                    default:
+                        break;
+                }
+                basic = video;
+            }
+        }
+    }
+   
+    return basic;
 }
 
 @end

@@ -21,6 +21,12 @@ extern NSString * const TYPE_UINT64;
 extern NSString * const TYPE_STRING;
 extern NSString * const TYPE_ARRAY;
 
+typedef enum
+{
+    HKVideoWorkTypePre = 1, // 预览
+    HKVideoWorkTypeBackPlay = 2, // 回放
+}HKVideoWorkType;
+
 // 定义时间结构类(只用于心跳包）
 @interface XRTCPProtocol_SystemTime :NSObject
 
@@ -72,7 +78,7 @@ extern NSString * const TYPE_ARRAY;
 // 编码
 - (NSData *)encodePack;
 // 解码
-- (BOOL)decodePackWithData:(NSData *)data length:(int)length;
+- (BOOL)decodePackWithData:(NSData *)data length:(NSUInteger)length;
 // 编码消息体
 - (NSData *)encodeBody;
 // 解码消息体

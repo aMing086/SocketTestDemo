@@ -8,12 +8,16 @@
 
 #import <Foundation/Foundation.h>
 #import "GCDAsyncSocket.h"
+#import "XRVideoDataTool.h"
+
 @class SocketTool;
 
 @protocol SocketToolDelegate <NSObject>
 
 @optional
 - (void)socketTool:(SocketTool *)tool readData:(NSData *)data;
+
+- (void)socketTool:(SocketTool *)tool readCompletePackData:(NSData *)packData;
 
 - (void)socketTool:(SocketTool *)tool error:(NSError *)error;
 
@@ -34,8 +38,9 @@ typedef void (^ResponseBlock)(NSData *data, long tag, NSError *error);
 // 链接超时时间
 @property (nonatomic, assign, readonly) NSInteger timeOut;
 
-@property (nonatomic, copy) ResponseBlock responseBlock;
-
+//@property (nonatomic, copy) ResponseBlock responseBlock;
+@property (nonatomic, assign) NSUInteger socketTag;
+@property (nonatomic, strong) NSString *clientGUID;
 @property (nonatomic, weak) id<SocketToolDelegate> delegate;
 
 /**
@@ -53,8 +58,6 @@ typedef void (^ResponseBlock)(NSData *data, long tag, NSError *error);
 /**
  * 向服务器发送信息 同时确定服务器链接
  */
-- (void)sendMessageWithData:(NSData *)data responseBlock:(ResponseBlock)block;
-
-// 
+- (void)sendMessageWithData:(NSData *)data;
 
 @end

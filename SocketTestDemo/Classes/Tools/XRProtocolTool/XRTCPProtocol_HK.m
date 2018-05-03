@@ -159,7 +159,7 @@ NSString * const TYPE_ARRAY = @"T@\"NSArray\"";
 }
 
 // 解码
-- (BOOL)decodePackWithData:(NSData *)data length:(int)length;
+- (BOOL)decodePackWithData:(NSData *)data length:(NSUInteger)length;
 {
     Byte *buf = (Byte *)[data bytes];
     if (buf[0] != XRCP_HEAD || buf[length - 1] != XRCP_TAIL) {
